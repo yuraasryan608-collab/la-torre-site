@@ -309,6 +309,81 @@
         border-color: var(--tuff-light);
     }
 
+    .phone-input-row { display: flex; gap: 6px; }
+    .phone-country-select { flex: 0 0 100px; padding-left: 6px !important; padding-right: 4px !important; }
+    .phone-input-row input { flex: 1; min-width: 0; }
+
+    .date-picker-btn {
+        width: 100%;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--input-bg);
+        color: var(--ink);
+        font-family: 'Work Sans', sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: var(--transition-theme), border-color 0.2s ease;
+    }
+    .date-picker-btn:hover { border-color: var(--tuff-light); }
+    .date-picker-btn svg { color: var(--text-muted); flex-shrink: 0; margin-left: 8px; }
+
+    .calendar-modal {
+        display: none;
+        position: fixed; inset: 0; z-index: 9997;
+        background: rgba(20,17,15,0.85);
+        justify-content: center; align-items: center;
+        padding: 16px;
+    }
+    .calendar-modal.open { display: flex; animation: fadeIn 0.2s ease; }
+    .calendar-modal-content {
+        background: var(--card-bg);
+        border-radius: 18px;
+        padding: 20px 18px 18px;
+        max-width: 360px;
+        width: 100%;
+        position: relative;
+        transition: var(--transition-theme);
+    }
+    .calendar-modal .close-btn { top: -12px; right: -4px; color: var(--heading); }
+    .calendar-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 14px;
+    }
+    .calendar-header button {
+        background: none; border: 1px solid var(--line); border-radius: 50%;
+        width: 30px; height: 30px; cursor: pointer; color: var(--heading);
+        display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .calendar-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15px; color: var(--heading); text-transform: capitalize; }
+    .calendar-weekdays, .calendar-days {
+        display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center;
+    }
+    .calendar-weekdays span { font-size: 10.5px; color: var(--text-muted); font-weight: 600; padding-bottom: 6px; }
+    .calendar-day {
+        aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+        border-radius: 8px; font-size: 12.5px; cursor: pointer; color: var(--ink);
+        position: relative; user-select: none;
+    }
+    .calendar-day.empty { cursor: default; }
+    .calendar-day.past, .calendar-day.booked {
+        color: var(--text-muted); opacity: 0.4; cursor: not-allowed; text-decoration: line-through;
+    }
+    .calendar-day.today { font-weight: 700; box-shadow: inset 0 0 0 1.5px var(--tuff-light); }
+    .calendar-day:not(.empty):not(.past):not(.booked):hover { background: rgba(168,88,63,0.14); }
+    .calendar-day.in-range { background: rgba(168,88,63,0.16); border-radius: 0; }
+    .calendar-day.range-start { background: var(--tuff); color: #fff; border-radius: 8px 0 0 8px; }
+    .calendar-day.range-end { background: var(--tuff); color: #fff; border-radius: 0 8px 8px 0; }
+    .calendar-day.range-single { background: var(--tuff); color: #fff; border-radius: 8px; }
+    .calendar-hint { font-size: 11.5px; color: var(--text-muted); text-align: center; margin-top: 12px; min-height: 16px; }
+    .calendar-confirm-btn {
+        width: 100%; margin-top: 10px;
+        background: var(--forest); color: #fff; border: none;
+        padding: 11px; border-radius: 8px; font-weight: 600; font-size: 13.5px; cursor: pointer;
+    }
+    .calendar-confirm-btn:disabled { background: #d4cabd; color: var(--text-muted); cursor: not-allowed; }
+
     .availability-note {
         font-size: 11.5px;
         color: var(--text-muted);
@@ -471,6 +546,32 @@
     }
     .admin-booking-row:last-child { border-bottom: none; }
     .admin-booking-row strong { color: var(--heading); }
+    .admin-booking-row.cancelled { opacity: 0.5; }
+    .status-tag {
+        display: inline-block;
+        background: rgba(168,88,63,0.15);
+        color: var(--tuff);
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 999px;
+        margin-left: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .cancel-booking-btn {
+        display: block;
+        margin-top: 8px;
+        background: none;
+        border: 1px solid var(--tuff);
+        color: var(--tuff);
+        font-size: 11.5px;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+    }
+    .cancel-booking-btn:hover { background: rgba(168,88,63,0.1); }
     .admin-refresh {
         background: none;
         border: 1px solid var(--line);
@@ -778,13 +879,14 @@
             <div class="panel-inner"><div class="panel-inner-pad">
                 <h4 id="ph1">Ամրագրման տվյալներ</h4>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label id="l-in-1">Ժամանում</label>
-                        <input type="date" id="in-1" onchange="calculatePrice(1, 35000)">
-                    </div>
-                    <div class="form-group">
-                        <label id="l-out-1">Մեկնում</label>
-                        <input type="date" id="out-1" onchange="calculatePrice(1, 35000)">
+                    <div class="form-group" style="flex: 1;">
+                        <label id="l-dates-1">Ամսաթվեր</label>
+                        <button type="button" class="date-picker-btn" id="date-btn-1" onclick="openCalendar(1)">
+                            <span id="date-range-label-1">—</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 3V7M16 3V7M3 10H21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                        </button>
+                        <input type="hidden" id="in-1">
+                        <input type="hidden" id="out-1">
                     </div>
                 </div>
                 <div class="availability-note" id="avail-1"></div>
@@ -809,9 +911,14 @@
                         <label id="l-name-1">Անուն</label>
                         <input type="text" id="guest-name-1" placeholder="Ձեր անունը">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label id="l-phone-1">Հեռախոս</label>
-                        <input type="tel" id="guest-phone-1" placeholder="+374...">
+                        <div class="phone-input-row">
+                            <select id="phone-country-1" class="phone-country-select"></select>
+                            <input type="tel" id="guest-phone-1" placeholder="XX XXX XXX" inputmode="numeric">
+                        </div>
                     </div>
                 </div>
                 <div class="summary-box">
@@ -859,13 +966,14 @@
             <div class="panel-inner"><div class="panel-inner-pad">
                 <h4 id="ph2">Ամրագրման տվյալներ</h4>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label id="l-in-2">Ժամանում</label>
-                        <input type="date" id="in-2" onchange="calculatePrice(2, 38000)">
-                    </div>
-                    <div class="form-group">
-                        <label id="l-out-2">Մեկնում</label>
-                        <input type="date" id="out-2" onchange="calculatePrice(2, 38000)">
+                    <div class="form-group" style="flex: 1;">
+                        <label id="l-dates-2">Ամսաթվեր</label>
+                        <button type="button" class="date-picker-btn" id="date-btn-2" onclick="openCalendar(2)">
+                            <span id="date-range-label-2">—</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 3V7M16 3V7M3 10H21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                        </button>
+                        <input type="hidden" id="in-2">
+                        <input type="hidden" id="out-2">
                     </div>
                 </div>
                 <div class="availability-note" id="avail-2"></div>
@@ -890,9 +998,14 @@
                         <label id="l-name-2">Անուն</label>
                         <input type="text" id="guest-name-2" placeholder="Ձեր անունը">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label id="l-phone-2">Հեռախոս</label>
-                        <input type="tel" id="guest-phone-2" placeholder="+374...">
+                        <div class="phone-input-row">
+                            <select id="phone-country-2" class="phone-country-select"></select>
+                            <input type="tel" id="guest-phone-2" placeholder="XX XXX XXX" inputmode="numeric">
+                        </div>
                     </div>
                 </div>
                 <div class="summary-box">
@@ -940,13 +1053,14 @@
             <div class="panel-inner"><div class="panel-inner-pad">
                 <h4 id="ph3">Ամրագրման տվյալներ</h4>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label id="l-in-3">Ժամանում</label>
-                        <input type="date" id="in-3" onchange="calculatePrice(3, 40000)">
-                    </div>
-                    <div class="form-group">
-                        <label id="l-out-3">Մեկնում</label>
-                        <input type="date" id="out-3" onchange="calculatePrice(3, 40000)">
+                    <div class="form-group" style="flex: 1;">
+                        <label id="l-dates-3">Ամսաթվեր</label>
+                        <button type="button" class="date-picker-btn" id="date-btn-3" onclick="openCalendar(3)">
+                            <span id="date-range-label-3">—</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 3V7M16 3V7M3 10H21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                        </button>
+                        <input type="hidden" id="in-3">
+                        <input type="hidden" id="out-3">
                     </div>
                 </div>
                 <div class="availability-note" id="avail-3"></div>
@@ -971,9 +1085,14 @@
                         <label id="l-name-3">Անուն</label>
                         <input type="text" id="guest-name-3" placeholder="Ձեր անունը">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label id="l-phone-3">Հեռախոս</label>
-                        <input type="tel" id="guest-phone-3" placeholder="+374...">
+                        <div class="phone-input-row">
+                            <select id="phone-country-3" class="phone-country-select"></select>
+                            <input type="tel" id="guest-phone-3" placeholder="XX XXX XXX" inputmode="numeric">
+                        </div>
                     </div>
                 </div>
                 <div class="summary-box">
@@ -1021,13 +1140,14 @@
             <div class="panel-inner"><div class="panel-inner-pad">
                 <h4 id="ph4">Ամրագրման տվյալներ</h4>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label id="l-in-4">Ժամանում</label>
-                        <input type="date" id="in-4" onchange="calculatePrice(4, 45000)">
-                    </div>
-                    <div class="form-group">
-                        <label id="l-out-4">Մեկնում</label>
-                        <input type="date" id="out-4" onchange="calculatePrice(4, 45000)">
+                    <div class="form-group" style="flex: 1;">
+                        <label id="l-dates-4">Ամսաթվեր</label>
+                        <button type="button" class="date-picker-btn" id="date-btn-4" onclick="openCalendar(4)">
+                            <span id="date-range-label-4">—</span>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 3V7M16 3V7M3 10H21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                        </button>
+                        <input type="hidden" id="in-4">
+                        <input type="hidden" id="out-4">
                     </div>
                 </div>
                 <div class="availability-note" id="avail-4"></div>
@@ -1052,9 +1172,14 @@
                         <label id="l-name-4">Անուն</label>
                         <input type="text" id="guest-name-4" placeholder="Ձեր անունը">
                     </div>
+                </div>
+                <div class="form-row">
                     <div class="form-group">
                         <label id="l-phone-4">Հեռախոս</label>
-                        <input type="tel" id="guest-phone-4" placeholder="+374...">
+                        <div class="phone-input-row">
+                            <select id="phone-country-4" class="phone-country-select"></select>
+                            <input type="tel" id="guest-phone-4" placeholder="XX XXX XXX" inputmode="numeric">
+                        </div>
                     </div>
                 </div>
                 <div class="summary-box">
@@ -1140,6 +1265,21 @@
     </div>
 </div>
 
+<div class="calendar-modal" id="calendar-modal">
+    <div class="calendar-modal-content">
+        <span class="close-btn" onclick="closeCalendar()">&times;</span>
+        <div class="calendar-header">
+            <button onclick="calendarChangeMonth(-1)">&#10094;</button>
+            <span class="calendar-title" id="calendar-title"></span>
+            <button onclick="calendarChangeMonth(1)">&#10095;</button>
+        </div>
+        <div class="calendar-weekdays" id="calendar-weekdays"></div>
+        <div class="calendar-days" id="calendar-days"></div>
+        <div class="calendar-hint" id="calendar-hint"></div>
+        <button class="calendar-confirm-btn" id="calendar-confirm-btn" onclick="confirmCalendarSelection()" disabled>OK</button>
+    </div>
+</div>
+
 <div class="install-banner" id="install-banner">
     <img src="icons/icon-192.png" alt="La Torre">
     <div class="install-banner-text">
@@ -1161,10 +1301,12 @@
         TELEGRAM_BOT_TOKEN: '8859897444:AAEGhQQ-xtINewrVLERNO1cO-GiMiG25LaE',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   '6165442606',        // ваш личный chat_id
         SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbzkyuNeEXmev5VnIOxXuo5B1MSB3Hd_LCe-FtN32IW1ZNJ4M90A-hvb2uXCeDuqdSKC/exec', // /exec ссылка после деплоя Apps Script
-        ADMIN_PASSWORD:     '20026',    // пароль входа в админку
-        WHATSAPP_NUMBER:    '+37494458080',  // формат: 374XXXXXXXX (без +, без пробелов)
+        // Пароль администратора больше не хранится здесь — он задаётся в самой
+        // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
+        // Так пароль не виден в исходном коде сайта, даже если сайт лежит в открытом GitHub-репозитории.
+        WHATSAPP_NUMBER:    '+37433688444',  // формат: 374XXXXXXXX (без +, без пробелов)
         INSTAGRAM_HANDLE:   '000_111___',       // без @, например latorre.yerevan
-        PHONE_NUMBER:       '+3749448080',  // формат: +374XXXXXXXX
+        PHONE_NUMBER:       '+37433688444',  // формат: +374XXXXXXXX
         MAP_QUERY:          'La Torre' // например: "La Torre Hotel, Yerevan" или точный адрес
     };
     const isConfigured = (val) => val && !val.startsWith('ВАШ_') && !val.startsWith('смените');
@@ -1292,38 +1434,82 @@
     }
 
     // ---------- Админ-панель ----------
+    // Пароль администратора теперь НЕ хранится на сайте — только на сервере
+    // (Script Properties в Apps Script). Мы просто пересылаем то, что человек
+    // ввёл, и сервер сам говорит "да/нет".
+    let adminPass = null;
+
     function openAdmin() { document.getElementById('admin-modal').classList.add('open'); }
     function closeAdmin() { document.getElementById('admin-modal').classList.remove('open'); }
-    function tryAdminLogin() {
+
+    async function tryAdminLogin() {
         const val = document.getElementById('admin-pass').value;
-        if (val === CONFIG.ADMIN_PASSWORD) {
+        if (!val) return;
+        adminPass = val;
+        const ok = await loadBookingsForAdmin();
+        if (ok) {
             document.getElementById('admin-login').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
-            loadBookingsForAdmin();
         } else {
+            adminPass = null;
             alert('Неверный пароль');
         }
     }
+
     async function loadBookingsForAdmin() {
         const list = document.getElementById('admin-bookings-list');
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) {
             list.innerHTML = 'Подключите Google Таблицу (SHEET_WEBAPP_URL в коде), чтобы видеть брони здесь.';
-            return;
+            return false;
         }
         list.innerHTML = 'Загрузка...';
         try {
-            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=bookings`);
+            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=bookings&pass=${encodeURIComponent(adminPass || '')}`);
             const data = await res.json();
-            if (!data.length) { list.innerHTML = 'Пока нет броней.'; return; }
+
+            if (data && data.ok === false) {
+                if (document.getElementById('admin-dashboard').style.display !== 'block') {
+                    return false; // ещё на экране входа — просто сообщим "неверный пароль" выше
+                }
+                list.innerHTML = 'Сессия истекла, войдите заново.';
+                return false;
+            }
+
+            if (!data.length) { list.innerHTML = 'Пока нет броней.'; return true; }
+
             list.innerHTML = data.map(b => `
-                <div class="admin-booking-row">
-                    <strong>Номер ${escapeHtml(b.room)}</strong> — ${escapeHtml(b.checkin)} → ${escapeHtml(b.checkout)}<br>
+                <div class="admin-booking-row ${b.status === 'Отменена' ? 'cancelled' : ''}">
+                    <strong>Номер ${escapeHtml(b.room)}</strong> — ${escapeHtml(b.checkin)} → ${escapeHtml(b.checkout)}
+                    ${b.status === 'Отменена' ? '<span class="status-tag">Отменена</span>' : ''}<br>
                     ${escapeHtml(b.name)}, ${escapeHtml(b.phone)} · взрослых: ${escapeHtml(b.adults)}, детей: ${escapeHtml(b.kids)}, животных: ${escapeHtml(b.pets)}<br>
                     Сумма: ${escapeHtml(b.total)}
+                    ${b.status !== 'Отменена' ? `<button class="cancel-booking-btn" onclick="cancelBooking('${b.id}')">Отменить бронь</button>` : ''}
                 </div>
             `).join('');
+            return true;
         } catch (e) {
             list.innerHTML = 'Не удалось загрузить брони. Проверьте SHEET_WEBAPP_URL.';
+            return false;
+        }
+    }
+
+    async function cancelBooking(id) {
+        if (!confirm('Точно отменить эту бронь? Даты снова станут свободными.')) return;
+        try {
+            const res = await fetch(CONFIG.SHEET_WEBAPP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ type: 'cancelBooking', id, pass: adminPass })
+            });
+            const data = await res.json();
+            if (data.ok) {
+                loadBookingsForAdmin();
+                [1, 2, 3, 4].forEach(rid => loadAvailability(rid));
+            } else {
+                alert('Не удалось отменить бронь: ' + (data.error || 'неизвестная ошибка'));
+            }
+        } catch (e) {
+            alert('Ошибка соединения при отмене брони');
         }
     }
 
@@ -1405,6 +1591,172 @@
         document.getElementById(`out-${id}`).min = today;
     });
 
+    // ---------- Код страны для телефона ----------
+    const PHONE_COUNTRIES = [
+        { code: '374', flag: '🇦🇲', label: 'AM' },
+        { code: '7',   flag: '🇷🇺', label: 'RU' },
+        { code: '1',   flag: '🇺🇸', label: 'US' },
+        { code: '995', flag: '🇬🇪', label: 'GE' },
+        { code: '971', flag: '🇦🇪', label: 'AE' },
+        { code: '33',  flag: '🇫🇷', label: 'FR' },
+        { code: '49',  flag: '🇩🇪', label: 'DE' },
+        { code: '44',  flag: '🇬🇧', label: 'GB' }
+    ];
+    [1, 2, 3, 4].forEach(id => {
+        const sel = document.getElementById(`phone-country-${id}`);
+        if (!sel) return;
+        sel.innerHTML = PHONE_COUNTRIES.map(c => `<option value="${c.code}">${c.flag} +${c.code}</option>`).join('');
+    });
+
+    // ---------- Календарь бронирования (в стиле Booking.com) ----------
+    const WEEKDAY_NAMES = {
+        ru: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+        en: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+        am: ['Երկ', 'Երք', 'Չրք', 'Հնգ', 'Ուրբ', 'Շբթ', 'Կիր']
+    };
+    const MONTH_NAMES = {
+        ru: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        am: ['Հունվար', 'Փետրվար', 'Մարտ', 'Ապրիլ', 'Մայիս', 'Հունիս', 'Հուլիս', 'Օգոստոս', 'Սեպտեմբեր', 'Հոկտեմբեր', 'Նոյեմբեր', 'Դեկտեմբեր']
+    };
+
+    const calState = { roomId: null, viewYear: 0, viewMonth: 0, checkin: null, checkout: null };
+
+    function toISO_(d) { return d.toISOString().split('T')[0]; }
+    function parseISO_(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+    function addDaysISO_(s, n) { const d = parseISO_(s); d.setDate(d.getDate() + n); return toISO_(d); }
+
+    function isDayBooked_(roomId, dateStr) {
+        const ranges = roomBookedRanges[roomId] || [];
+        return ranges.some(r => dateStr >= r.checkin && dateStr < r.checkout);
+    }
+    function isRangeClear_(roomId, startStr, endStr) {
+        let cursor = startStr;
+        while (cursor < endStr) {
+            if (isDayBooked_(roomId, cursor)) return false;
+            cursor = addDaysISO_(cursor, 1);
+        }
+        return true;
+    }
+
+    function openCalendar(roomId) {
+        calState.roomId = roomId;
+        const inVal = document.getElementById(`in-${roomId}`).value;
+        const outVal = document.getElementById(`out-${roomId}`).value;
+        calState.checkin = inVal || null;
+        calState.checkout = outVal || null;
+        const base = calState.checkin ? parseISO_(calState.checkin) : new Date();
+        calState.viewYear = base.getFullYear();
+        calState.viewMonth = base.getMonth();
+        renderCalendar();
+        document.getElementById('calendar-modal').classList.add('open');
+    }
+    function closeCalendar() {
+        document.getElementById('calendar-modal').classList.remove('open');
+    }
+    function calendarChangeMonth(delta) {
+        calState.viewMonth += delta;
+        if (calState.viewMonth < 0) { calState.viewMonth = 11; calState.viewYear--; }
+        if (calState.viewMonth > 11) { calState.viewMonth = 0; calState.viewYear++; }
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const lang = currentLang;
+        document.getElementById('calendar-title').innerText = `${MONTH_NAMES[lang][calState.viewMonth]} ${calState.viewYear}`;
+        document.getElementById('calendar-weekdays').innerHTML = WEEKDAY_NAMES[lang].map(w => `<span>${w}</span>`).join('');
+
+        const firstOfMonth = new Date(calState.viewYear, calState.viewMonth, 1);
+        const startOffset = (firstOfMonth.getDay() + 6) % 7; // понедельник = 0
+        const daysInMonth = new Date(calState.viewYear, calState.viewMonth + 1, 0).getDate();
+        const todayStr = toISO_(new Date());
+
+        let cellsHtml = '';
+        for (let i = 0; i < startOffset; i++) cellsHtml += `<div class="calendar-day empty"></div>`;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${calState.viewYear}-${String(calState.viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isPast = dateStr < todayStr;
+            const isBooked = isDayBooked_(calState.roomId, dateStr);
+            const isToday = dateStr === todayStr;
+
+            let cls = 'calendar-day';
+            if (isPast) cls += ' past';
+            else if (isBooked) cls += ' booked';
+            if (isToday) cls += ' today';
+
+            if (calState.checkin && calState.checkout) {
+                if (dateStr === calState.checkin && dateStr === calState.checkout) cls += ' range-single';
+                else if (dateStr === calState.checkin) cls += ' range-start';
+                else if (dateStr === calState.checkout) cls += ' range-end';
+                else if (dateStr > calState.checkin && dateStr < calState.checkout) cls += ' in-range';
+            } else if (calState.checkin && dateStr === calState.checkin) {
+                cls += ' range-single';
+            }
+
+            const clickable = !isPast && !isBooked;
+            cellsHtml += `<div class="${cls}" ${clickable ? `onclick="calendarDayClick('${dateStr}')"` : ''}>${day}</div>`;
+        }
+
+        document.getElementById('calendar-days').innerHTML = cellsHtml;
+
+        const hints = {
+            ru: calState.checkin && !calState.checkout ? 'Выберите дату выезда' : 'Выберите дату заезда',
+            en: calState.checkin && !calState.checkout ? 'Select your check-out date' : 'Select your check-in date',
+            am: calState.checkin && !calState.checkout ? 'Ընտրեք մեկնման ամսաթիվը' : 'Ընտրեք ժամանման ամսաթիվը'
+        };
+        document.getElementById('calendar-hint').innerText = hints[lang];
+        document.getElementById('calendar-confirm-btn').disabled = !(calState.checkin && calState.checkout);
+    }
+
+    function calendarDayClick(dateStr) {
+        if (!calState.checkin || (calState.checkin && calState.checkout)) {
+            calState.checkin = dateStr;
+            calState.checkout = null;
+        } else if (dateStr <= calState.checkin) {
+            calState.checkin = dateStr;
+            calState.checkout = null;
+        } else {
+            if (isRangeClear_(calState.roomId, calState.checkin, dateStr)) {
+                calState.checkout = dateStr;
+            } else {
+                const conflictMsg = {
+                    ru: 'Между этими датами есть занятые дни — выберите другой диапазон',
+                    en: "There's a booked day in between — please pick another range",
+                    am: 'Այս օրերի միջև կան զբաղված օրեր՝ ընտրեք այլ միջակայք'
+                };
+                document.getElementById('calendar-hint').innerText = conflictMsg[currentLang];
+                return;
+            }
+        }
+        renderCalendar();
+    }
+
+    function confirmCalendarSelection() {
+        if (!calState.checkin || !calState.checkout) return;
+        const roomId = calState.roomId;
+        document.getElementById(`in-${roomId}`).value = calState.checkin;
+        document.getElementById(`out-${roomId}`).value = calState.checkout;
+        updateDateRangeLabel(roomId);
+        calculatePrice(roomId, ROOM_PRICES[roomId]);
+        closeCalendar();
+    }
+
+    function updateDateRangeLabel(roomId) {
+        const inVal = document.getElementById(`in-${roomId}`).value;
+        const outVal = document.getElementById(`out-${roomId}`).value;
+        const label = document.getElementById(`date-range-label-${roomId}`);
+        if (!label) return;
+        if (inVal && outVal) {
+            const short = (s) => { const [, m, d] = s.split('-'); return `${d}.${m}`; };
+            label.innerText = `${short(inVal)} → ${short(outVal)}`;
+        } else {
+            label.innerText = '—';
+        }
+    }
+
+    [1, 2, 3, 4].forEach(id => updateDateRangeLabel(id));
+
     // Открытие/закрытие блока отзывов
     function toggleComments(id) {
         const panel = document.getElementById(`comments-panel-${id}`);
@@ -1468,9 +1820,10 @@
 
     function confirmBooking(id) {
         const name = document.getElementById(`guest-name-${id}`).value.trim();
-        const phone = document.getElementById(`guest-phone-${id}`).value.trim();
+        const phoneDigits = document.getElementById(`guest-phone-${id}`).value.replace(/\D/g, '');
+        const countryCode = document.getElementById(`phone-country-${id}`).value;
 
-        if (!name || !phone) {
+        if (!name || !phoneDigits) {
             const missingMsg = {
                 ru: "Укажите имя и телефон, чтобы мы могли подтвердить бронь",
                 en: "Please enter your name and phone so we can confirm the booking",
@@ -1479,6 +1832,18 @@
             alert(missingMsg[currentLang]);
             return;
         }
+
+        if (phoneDigits.length < 6) {
+            const shortMsg = {
+                ru: "Номер телефона слишком короткий — проверьте, пожалуйста",
+                en: "That phone number looks too short — please check it",
+                am: "Հեռախոսահամարը շատ կարճ է՝ խնդրում ենք ստուգել"
+            };
+            alert(shortMsg[currentLang]);
+            return;
+        }
+
+        const phone = `+${countryCode}${phoneDigits}`;
 
         const checkin = document.getElementById(`in-${id}`).value;
         const checkout = document.getElementById(`out-${id}`).value;
@@ -1551,7 +1916,7 @@
         ru: {
             hTitle: "Добро пожаловать в La Torre", hSub: "Эксклюзивный отель в центре Еревана",
             hint: "Посмотреть фото", search: "Забронировать номер", ph: "Параметры бронирования",
-            lin: "Заезд", lout: "Выезд", lad: "Взрослые", lch: "Дети", lpet: "Животные", lname: "Имя", lphone: "Телефон", stot: "Итого:", cbtn: "Подтвердить бронь",
+            lin: "Заезд", lout: "Выезд", ldates: "Даты", lad: "Взрослые", lch: "Дети", lpet: "Животные", lname: "Имя", lphone: "Телефон", stot: "Итого:", cbtn: "Подтвердить бронь",
             commentsTitle: "Отзывы", commentsEmpty: "Отзывов пока нет", commentNamePh: "Ваше имя", commentTextPh: "Оставьте отзыв...", commentSubmit: "Отправить отзыв",
             aboutCaption: "La Torre, Ереван", aboutTitle: "Ваш дом в центре Еревана", aboutSub: "Уютное место для отдыха в центре города, с Ереванской атмосферой.",
             bookedDatesLabel: "Занято:",
@@ -1569,7 +1934,7 @@
         en: {
             hTitle: "Welcome to La Torre", hSub: "Exclusive hotel in the center of Yerevan",
             hint: "View photos", search: "Book Room", ph: "Booking Details",
-            lin: "Check-in", lout: "Check-out", lad: "Adults", lch: "Children", lpet: "Pets", lname: "Name", lphone: "Phone", stot: "Total:", cbtn: "Confirm Booking",
+            lin: "Check-in", lout: "Check-out", ldates: "Dates", lad: "Adults", lch: "Children", lpet: "Pets", lname: "Name", lphone: "Phone", stot: "Total:", cbtn: "Confirm Booking",
             commentsTitle: "Reviews", commentsEmpty: "No reviews yet", commentNamePh: "Your name", commentTextPh: "Leave a review...", commentSubmit: "Submit review",
             aboutCaption: "La Torre, Yerevan", aboutTitle: "Your home in central Yerevan", aboutSub: "A cozy place to unwind in the city center, with a genuine Yerevan atmosphere.",
             bookedDatesLabel: "Booked:",
@@ -1587,7 +1952,7 @@
         am: {
             hTitle: "Բարի գալուստ La Torre", hSub: "Էքսկլյուզիվ հյուրանոց Երևանի կենտրոնում",
             hint: "Դիտել նկարները", search: "Ամրագրել սենյակը", ph: "Ամրագրման տվյալներ",
-            lin: "Ժամանում", lout: "Մեկնում", lad: "Մեծահասակներ", lch: "Երեխաներ", lpet: "Կենդանիներ", lname: "Անուն", lphone: "Հեռախոս", stot: "Ընդամենը:", cbtn: "Հաստատել ամրագրումը",
+            lin: "Ժամանում", lout: "Մեկնում", ldates: "Ամսաթվեր", lad: "Մեծահասակներ", lch: "Երեխաներ", lpet: "Կենդանիներ", lname: "Անուն", lphone: "Հեռախոս", stot: "Ընդամենը:", cbtn: "Հաստատել ամրագրումը",
             commentsTitle: "Կարծիքներ", commentsEmpty: "Կարծիքներ դեռ չկան", commentNamePh: "Ձեր անունը", commentTextPh: "Ձեր կարծիքը...", commentSubmit: "Ուղարկել կարծիքը",
             aboutCaption: "La Torre, Երևան", aboutTitle: "Ձեր տունը Երևանի կենտրոնում", aboutSub: "Հարմարավետ վայր՝ հանգստանալու քաղաքի կենտրոնում, իսկական երևանյան մթնոլորտով։",
             bookedDatesLabel: "Զբաղված է՝",
@@ -1661,8 +2026,7 @@
         [1, 2, 3, 4].forEach(id => {
             document.getElementById(`bbtn${id}`).childNodes[0].nodeValue = t.search + ' ';
             document.getElementById(`ph${id}`).innerText = t.ph;
-            document.getElementById(`l-in-${id}`).innerText = t.lin;
-            document.getElementById(`l-out-${id}`).innerText = t.lout;
+            document.getElementById(`l-dates-${id}`).innerText = t.ldates;
             document.getElementById(`l-ad-${id}`).innerText = t.lad;
             document.getElementById(`l-ch-${id}`).innerText = t.lch;
             document.getElementById(`l-pet-${id}`).innerText = t.lpet;

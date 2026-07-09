@@ -1298,16 +1298,16 @@
     // Google Apps Script (см. инструкцию в отдельном файле integration-setup.md)
     // ========================================================================
     const CONFIG = {
-        TELEGRAM_BOT_TOKEN: '8859897444:AAEGhQQ-xtINewrVLERNO1cO-GiMiG25LaE',      // получить у @BotFather
-        TELEGRAM_CHAT_ID:   '6165442606',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbzkyuNeEXmev5VnIOxXuo5B1MSB3Hd_LCe-FtN32IW1ZNJ4M90A-hvb2uXCeDuqdSKC/exec', // /exec ссылка после деплоя Apps Script
+        TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
+        TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
         // Так пароль не виден в исходном коде сайта, даже если сайт лежит в открытом GitHub-репозитории.
-        WHATSAPP_NUMBER:    '+37433688444',  // формат: 374XXXXXXXX (без +, без пробелов)
-        INSTAGRAM_HANDLE:   '000_111___',       // без @, например latorre.yerevan
-        PHONE_NUMBER:       '+37433688444',  // формат: +374XXXXXXXX
-        MAP_QUERY:          'La Torre' // например: "La Torre Hotel, Yerevan" или точный адрес
+        WHATSAPP_NUMBER:    'ВАШ_НОМЕР_WHATSAPP',  // формат: 374XXXXXXXX (без +, без пробелов)
+        INSTAGRAM_HANDLE:   'ВАШ_INSTAGRAM',       // без @, например latorre.yerevan
+        PHONE_NUMBER:       'ВАШ_НОМЕР_ТЕЛЕФОНА',  // формат: +374XXXXXXXX
+        MAP_QUERY:          'ВАШ_АДРЕС_ИЛИ_НАЗВАНИЕ' // например: "La Torre Hotel, Yerevan" или точный адрес
     };
     const isConfigured = (val) => val && !val.startsWith('ВАШ_') && !val.startsWith('смените');
 
@@ -1581,8 +1581,19 @@
 
     const ROOM_PRICES = { 1: 35000, 2: 38000, 3: 40000, 4: 45000 };
 
-    const today = new Date().toISOString().split('T')[0];
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+    // Форматирование даты в YYYY-MM-DD по МЕСТНОМУ времени.
+    // Важно: НЕ использовать .toISOString() для этого — она переводит в UTC
+    // и в часовых поясах впереди UTC (например, Ереван, UTC+4) может сдвинуть
+    // дату на день назад, что ломает арифметику с датами в календаре.
+    function toLocalISO_(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    }
+
+    const today = toLocalISO_(new Date());
+    const tomorrow = toLocalISO_(new Date(Date.now() + 86400000));
 
     [1, 2, 3, 4].forEach(id => {
         document.getElementById(`in-${id}`).value = today;
@@ -1622,7 +1633,7 @@
 
     const calState = { roomId: null, viewYear: 0, viewMonth: 0, checkin: null, checkout: null };
 
-    function toISO_(d) { return d.toISOString().split('T')[0]; }
+    function toISO_(d) { return toLocalISO_(d); }
     function parseISO_(s) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
     function addDaysISO_(s, n) { const d = parseISO_(s); d.setDate(d.getDate() + n); return toISO_(d); }
 
@@ -1632,9 +1643,11 @@
     }
     function isRangeClear_(roomId, startStr, endStr) {
         let cursor = startStr;
-        while (cursor < endStr) {
+        let guard = 0;
+        while (cursor < endStr && guard < 400) {
             if (isDayBooked_(roomId, cursor)) return false;
             cursor = addDaysISO_(cursor, 1);
+            guard++;
         }
         return true;
     }

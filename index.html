@@ -829,9 +829,129 @@
         padding: 4px;
         flex-shrink: 0;
     }
+    /* ===== Интро-заставка ===== */
+    #intro-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background:
+            radial-gradient(ellipse 120% 90% at 50% 110%, rgba(169, 137, 83, 0.10), transparent 55%),
+            #14110F;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 1.1s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.9s ease 0.15s;
+        will-change: transform, opacity;
+    }
+    #intro-overlay.intro-done {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+    #intro-overlay.intro-removed { display: none; }
+
+    .intro-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transform: translateY(6px);
+    }
+
+    .intro-tower {
+        width: 92px;
+        height: 92px;
+        overflow: visible;
+    }
+
+    /* Башня отрисовывается тонкой линией */
+    .intro-stroke {
+        stroke-dasharray: 60;
+        stroke-dashoffset: 60;
+        animation: introDraw 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    .intro-stroke-2 { animation-delay: 0.45s; }
+    .intro-ground {
+        stroke-dasharray: 16;
+        stroke-dashoffset: 16;
+        animation: introDraw 0.7s ease-out 0.15s forwards;
+    }
+    @keyframes introDraw {
+        to { stroke-dashoffset: 0; }
+    }
+
+    /* Огонёк в окне: мягко "зажигается" с лёгким мерцанием свечи */
+    .intro-light {
+        opacity: 0;
+        transform-origin: 12px 9px;
+        animation:
+            introLightOn 0.9s ease-out 1.6s forwards,
+            introFlicker 3.2s ease-in-out 2.5s infinite;
+        filter: drop-shadow(0 0 3px rgba(169, 137, 83, 0.9));
+    }
+    @keyframes introLightOn {
+        0%   { opacity: 0; transform: scale(0.4); }
+        60%  { opacity: 1; transform: scale(1.25); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes introFlicker {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.75; }
+        72%      { opacity: 0.92; }
+    }
+
+    .intro-title {
+        margin-top: 22px;
+        font-family: 'Fraunces', serif;
+        font-size: 26px;
+        letter-spacing: 0.34em;
+        text-indent: 0.34em; /* компенсирует последний трекинг для точного центра */
+        color: #F2EAE0;
+        opacity: 0;
+        animation: introRise 1.0s cubic-bezier(0.22, 1, 0.36, 1) 1.9s forwards;
+    }
+    .intro-sub {
+        margin-top: 10px;
+        font-family: 'Work Sans', sans-serif;
+        font-size: 10.5px;
+        letter-spacing: 0.52em;
+        text-indent: 0.52em;
+        color: rgba(169, 137, 83, 0.85);
+        opacity: 0;
+        animation: introRise 1.0s cubic-bezier(0.22, 1, 0.36, 1) 2.15s forwards;
+    }
+    @keyframes introRise {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Пока идёт интро — страница под ним не прокручивается */
+    body.intro-active { overflow: hidden; }
+
+    /* Уважение к настройке "меньше движения": показываем всё сразу и коротко */
+    @media (prefers-reduced-motion: reduce) {
+        .intro-stroke, .intro-ground { animation: none; stroke-dashoffset: 0; }
+        .intro-light { animation: none; opacity: 1; }
+        .intro-title, .intro-sub { animation: none; opacity: 1; }
+        #intro-overlay { transition: opacity 0.4s ease; }
+        #intro-overlay.intro-done { transform: none; }
+    }
 </style>
 </head>
 <body>
+
+<!-- ===== Интро-заставка ===== -->
+<div id="intro-overlay" aria-hidden="true">
+    <div class="intro-inner">
+        <svg class="intro-tower" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="intro-stroke intro-stroke-1" d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2EAE0" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="intro-stroke intro-stroke-2" d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2EAE0" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <path class="intro-ground" d="M5.5 21H18.5" stroke="#F2EAE0" stroke-width="0.9" stroke-linecap="round"/>
+            <circle class="intro-light" cx="12" cy="9" r="1.3" fill="#A98953"/>
+        </svg>
+        <div class="intro-title">LA TORRE</div>
+        <div class="intro-sub">YEREVAN</div>
+    </div>
+</div>
 
 <header>
     <div class="brand">
@@ -1353,6 +1473,45 @@
 </div>
 
 <script>
+    // ===== Интро-заставка =====
+    (function () {
+        const overlay = document.getElementById('intro-overlay');
+        if (!overlay) return;
+
+        // Показываем интро один раз за сессию (при переустановке PWA или
+        // новом заходе — снова). Повторные обновления страницы не раздражают.
+        let seen = false;
+        try { seen = sessionStorage.getItem('introSeen') === '1'; } catch (e) {}
+
+        if (seen) {
+            overlay.remove();
+            return;
+        }
+
+        document.body.classList.add('intro-active');
+
+        const INTRO_DURATION = 3100; // полный цикл анимации
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function finish() {
+            overlay.classList.add('intro-done');
+            document.body.classList.remove('intro-active');
+            try { sessionStorage.setItem('introSeen', '1'); } catch (e) {}
+            // Полностью убираем слой после перехода
+            setTimeout(() => overlay.classList.add('intro-removed'), 1300);
+        }
+
+        setTimeout(finish, reduced ? 900 : INTRO_DURATION);
+
+        // Нетерпеливый гость может пропустить интро касанием
+        overlay.addEventListener('click', finish, { once: true });
+
+        // Страховка: что бы ни случилось, через 6 секунд сайт точно виден
+        setTimeout(() => {
+            if (!overlay.classList.contains('intro-done')) finish();
+        }, 6000);
+    })();
+
     let currentLang = 'am';
 
     // ========================================================================
@@ -1362,7 +1521,7 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbw8PKxzDoBZktPj4L36QLmRYSjTiYRzSGjGpoX7WYpf4IJ3LQqJeaEvDA59EfFuRnUi/exec', // /exec ссылка после деплоя Apps Script
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).

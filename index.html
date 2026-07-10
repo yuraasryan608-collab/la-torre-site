@@ -390,6 +390,7 @@
         margin: -4px 0 12px;
         line-height: 1.8;
     }
+    .availability-note:empty { display: none; }
     .booked-label { margin-right: 4px; }
     .booked-chip {
         display: inline-block;
@@ -946,10 +947,6 @@
             <span class="tag" id="t1">Էմերալդ Մոդեռն</span>
             <h3 id="r1">Սենյակ 1</h3>
             <div class="price-tag" id="p1">սկսած 35,000 ֏ / գիշեր</div>
-            <ul class="features">
-                <li id="f1-1">Ոճային զմրուխտե կանաչ ինտերիերի դիզայն</li>
-                <li id="f1-2">Շքեղ լուսավոր հարդարում և մարմարե լողասենյակ</li>
-            </ul>
             <button class="open-booking-btn" id="bbtn1" onclick="toggleBookingPanel(1)">Ամրագրել սենյակը <span class="chev">▾</span></button>
         </div>
         <div class="booking-panel" id="panel-1">
@@ -1033,10 +1030,6 @@
             <span class="tag" id="t2">Սապֆիրե Դասական</span>
             <h3 id="r2">Սենյակ 2</h3>
             <div class="price-tag" id="p2">սկսած 38,000 ֏ / գիշեր</div>
-            <ul class="features">
-                <li id="f2-1">Սապֆիրե կապույտ երանգներով դասական դիզայն</li>
-                <li id="f2-2">Ընդարձակ նստատեղ և տեսարան դեպի քաղաքը</li>
-            </ul>
             <button class="open-booking-btn" id="bbtn2" onclick="toggleBookingPanel(2)">Ամրագրել սենյակը <span class="chev">▾</span></button>
         </div>
         <div class="booking-panel" id="panel-2">
@@ -1120,10 +1113,6 @@
             <span class="tag" id="t3">Սաթի Ռեզիդենս</span>
             <h3 id="r3">Սենյակ 3</h3>
             <div class="price-tag" id="p3">սկսած 40,000 ֏ / գիշեր</div>
-            <ul class="features">
-                <li id="f3-1">Ջերմ սաթի երանգներ և փայտե դետալներ</li>
-                <li id="f3-2">Առանձին աշխատանքային անկյուն և պանորամային պատուհան</li>
-            </ul>
             <button class="open-booking-btn" id="bbtn3" onclick="toggleBookingPanel(3)">Ամրագրել սենյակը <span class="chev">▾</span></button>
         </div>
         <div class="booking-panel" id="panel-3">
@@ -1207,10 +1196,6 @@
             <span class="tag" id="t4">Պրեմիում պատշգամբով</span>
             <h3 id="r4">Սենյակ 4</h3>
             <div class="price-tag" id="p4">սկսած 45,000 ֏ / գիշեր</div>
-            <ul class="features">
-                <li id="f4-1">Էքսկլյուզիվ նարնջագույն դիզայներական էլեմենտներ</li>
-                <li id="f4-2">Սեփական հարմարավետ պատշգամբ սուրճի սեղանով՝ հանգստի համար</li>
-            </ul>
             <button class="open-booking-btn" id="bbtn4" onclick="toggleBookingPanel(4)">Ամրագրել սենյակը <span class="chev">▾</span></button>
         </div>
         <div class="booking-panel" id="panel-4">
@@ -1377,7 +1362,7 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbyN3G275fsuaAnbjA8F_dmSrtA-fnxroE56K_j3qdlArRugRqY_yYkm1CTRCTfdiOue/exec', // /exec ссылка после деплоя Apps Script
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
@@ -1651,14 +1636,20 @@
         return parts.length === 3 ? `${parts[2]}.${parts[1]}` : isoDate;
     }
 
+    // Бейджи "Занято: ..." под календарём убраны по решению владельца:
+    // гость видит занятые даты прямо в календаре (они зачёркнуты).
+    // Оставляем пустую функцию, чтобы не менять все места вызова.
     function renderAvailabilityNote(id) {
         const note = document.getElementById(`avail-${id}`);
-        if (!note) return;
-        const ranges = roomBookedRanges[id] || [];
-        if (!ranges.length) { note.innerHTML = ''; return; }
-        const label = translations[currentLang].bookedDatesLabel;
-        const chips = ranges.map(r => `<span class="booked-chip">${fmtShort_(r.checkin)}–${fmtShort_(r.checkout)}</span>`).join('');
-        note.innerHTML = `<span class="booked-label">${label}</span> ${chips}`;
+        if (note) note.innerHTML = '';
+    }
+
+    // Google Drive перестал отдавать картинки по ссылкам uc?export=view
+    // (ошибка 403 при встраивании на сайты). Конвертируем такие ссылки
+    // в рабочий thumbnail-формат — это чинит и ранее загруженные фото.
+    function fixDriveUrl_(url) {
+        const m = String(url).match(/drive\.google\.com\/uc\?export=view&id=([\w-]+)/);
+        return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : url;
     }
 
     // Кэш занятости из Bnovo: заполняется одним запросом на все номера
@@ -1711,6 +1702,10 @@
                 });
             } catch (e) { /* без бэкенда просто не показываем занятые даты */ }
         }
+
+        // Прошедшие брони (выезд уже был) отбрасываем сразу —
+        // они не нужны ни календарю, ни проверкам, и не засоряют сайт.
+        ranges = ranges.filter(r => r.checkout > today);
 
         roomBookedRanges[roomId] = ranges;
         renderAvailabilityNote(roomId);
@@ -1802,7 +1797,8 @@
         grid.innerHTML = 'Загрузка...';
         try {
             const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
-            const urls = await res.json();
+            const raw = await res.json();
+            const urls = raw.map(fixDriveUrl_);
             const realUrls = urls.filter(u => u !== '__HIDDEN__');
             const isHidden = urls.includes('__HIDDEN__');
 
@@ -1956,7 +1952,8 @@
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
         try {
             const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
-            const urls = await res.json();
+            const raw = await res.json();
+            const urls = raw.map(fixDriveUrl_);
             const realUrls = urls.filter(u => u !== '__HIDDEN__');
             const isHidden = urls.includes('__HIDDEN__');
             const cover = document.getElementById(`cover-img-${roomId}`);
@@ -2255,6 +2252,16 @@
         const checkin = document.getElementById(`in-${id}`).value;
         const checkout = document.getElementById(`out-${id}`).value;
 
+        if (!checkin || !checkout) {
+            const noDatesMsg = {
+                ru: "Сначала выберите даты заезда и выезда",
+                en: "Please select check-in and check-out dates first",
+                am: "Նախ ընտրեք ժամանման և մեկնման ամսաթվերը"
+            };
+            alert(noDatesMsg[currentLang]);
+            return;
+        }
+
         if (rangesOverlap_(checkin, checkout, roomBookedRanges[id] || [])) {
             const overlapMsg = {
                 ru: "Эти даты только что заняли — выберите другие",
@@ -2402,29 +2409,21 @@
         document.getElementById('install-btn').innerText = t.installBtn;
         setupInstallBannerForIos();
 
-        document.getElementById('hint1').innerText = `${t.hint} (${roomGalleries[1].length})`;
+        document.getElementById('hint1').innerText = roomGalleries[1].length ? `${t.hint} (${roomGalleries[1].length})` : '';
         document.getElementById('t1').innerText = t.t1;
         document.getElementById('r1').innerText = t.r1;
-        document.getElementById('f1-1').innerText = t.f1_1;
-        document.getElementById('f1-2').innerText = t.f1_2;
 
-        document.getElementById('hint2').innerText = `${t.hint} (${roomGalleries[2].length})`;
+        document.getElementById('hint2').innerText = roomGalleries[2].length ? `${t.hint} (${roomGalleries[2].length})` : '';
         document.getElementById('t2').innerText = t.t2;
         document.getElementById('r2').innerText = t.r2;
-        document.getElementById('f2-1').innerText = t.f2_1;
-        document.getElementById('f2-2').innerText = t.f2_2;
 
-        document.getElementById('hint3').innerText = `${t.hint} (${roomGalleries[3].length})`;
+        document.getElementById('hint3').innerText = roomGalleries[3].length ? `${t.hint} (${roomGalleries[3].length})` : '';
         document.getElementById('t3').innerText = t.t3;
         document.getElementById('r3').innerText = t.r3;
-        document.getElementById('f3-1').innerText = t.f3_1;
-        document.getElementById('f3-2').innerText = t.f3_2;
 
-        document.getElementById('hint4').innerText = `${t.hint} (${roomGalleries[4].length})`;
+        document.getElementById('hint4').innerText = roomGalleries[4].length ? `${t.hint} (${roomGalleries[4].length})` : '';
         document.getElementById('t4').innerText = t.t4;
         document.getElementById('r4').innerText = t.r4;
-        document.getElementById('f4-1').innerText = t.f4_1;
-        document.getElementById('f4-2').innerText = t.f4_2;
 
         [1, 2, 3, 4].forEach(id => updatePriceDisplay(id));
 

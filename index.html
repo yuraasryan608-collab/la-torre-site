@@ -611,6 +611,7 @@
     .admin-photos-grid {
         display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px;
     }
+    .admin-photos-grid > .comments-empty { grid-column: 1 / -1; }
     .admin-photo-thumb { position: relative; border-radius: 8px; overflow: hidden; aspect-ratio: 1; }
     .admin-photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .admin-photo-delete {
@@ -894,6 +895,7 @@
                     <option value="4">Номер 4</option>
                 </select>
                 <div class="admin-photos-grid" id="admin-photos-grid">Загрузка...</div>
+                <button class="admin-refresh" id="admin-hide-defaults-btn" style="display:none; width:100%; margin-bottom:10px;"></button>
                 <label class="admin-upload-btn">
                     + Добавить фото
                     <input type="file" accept="image/*" id="admin-photo-file" style="display:none" onchange="handlePhotoUpload(event)">
@@ -1375,7 +1377,8 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbxSvtZTByrX25I-uJMzsOKBhrjEE6gVMEOBq0YHM7AXKb4bq_T_0nhi0SQF3XizCrL8/exec', 
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
+        BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
         // Так пароль не виден в исходном коде сайта, даже если сайт лежит в открытом GitHub-репозитории.
@@ -1411,6 +1414,22 @@
                 body: JSON.stringify({ type, ...data })
             });
         } catch (e) { console.warn('Sheet write failed', e); }
+    }
+
+    // Отправка брони в Bnovo через наш бэкенд-прокси (если подключён).
+    // Работает "в фоне": даже если Bnovo временно недоступен, бронь уже
+    // сохранена в Google Sheets и уведомление отправлено в Telegram.
+    async function sendBookingToBnovo(booking) {
+        if (!isConfigured(CONFIG.BNOVO_BACKEND_URL)) return;
+        try {
+            const res = await fetch(`${CONFIG.BNOVO_BACKEND_URL}/api/booking`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(booking)
+            });
+            const data = await res.json();
+            if (!data.ok) console.warn('Bnovo booking failed', data);
+        } catch (e) { console.warn('Bnovo booking failed', e); }
     }
 
     // ---------- Установка приложения (PWA) ----------
@@ -1642,18 +1661,60 @@
         note.innerHTML = `<span class="booked-label">${label}</span> ${chips}`;
     }
 
-    async function loadAvailability(roomId) {
-        if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
+    // Кэш занятости из Bnovo: заполняется одним запросом на все номера
+    let bnovoBusyCache = null;
+
+    async function fetchBnovoAvailability() {
+        if (!isConfigured(CONFIG.BNOVO_BACKEND_URL)) return null;
+        if (bnovoBusyCache) return bnovoBusyCache;
         try {
-            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=availability&room=${roomId}`);
+            // Таймаут 8 секунд: бесплатный Render может "просыпаться" ~30-50 сек,
+            // в этом случае просто используем данные из Google Sheets.
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(`${CONFIG.BNOVO_BACKEND_URL}/api/availability`, { signal: controller.signal });
+            clearTimeout(timer);
             const data = await res.json();
-            roomBookedRanges[roomId] = data.map(r => ({
-                checkin: normalizeDateStr_(r.checkin),
-                checkout: normalizeDateStr_(r.checkout)
-            }));
-            renderAvailabilityNote(roomId);
-            calculatePrice(roomId, ROOM_PRICES[roomId]);
-        } catch (e) { /* без бэкенда просто не показываем занятые даты */ }
+            if (data.ok && Array.isArray(data.busy)) {
+                bnovoBusyCache = data.busy;
+                return data.busy;
+            }
+        } catch (e) { /* Bnovo недоступен — работаем через Sheets */ }
+        return null;
+    }
+
+    async function loadAvailability(roomId) {
+        let ranges = [];
+
+        // 1) Пробуем Bnovo (источник правды: включает брони с других каналов)
+        const bnovoBusy = await fetchBnovoAvailability();
+        if (bnovoBusy) {
+            ranges = bnovoBusy
+                .filter(b => String(b.room) === String(roomId) || String(b.room_name).includes(String(roomId)))
+                .map(b => ({ checkin: normalizeDateStr_(b.checkin), checkout: normalizeDateStr_(b.checkout) }));
+        }
+
+        // 2) Добавляем брони из Google Sheets (сделанные через сайт)
+        if (isConfigured(CONFIG.SHEET_WEBAPP_URL)) {
+            try {
+                const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=availability&room=${roomId}`);
+                const data = await res.json();
+                const sheetRanges = data.map(r => ({
+                    checkin: normalizeDateStr_(r.checkin),
+                    checkout: normalizeDateStr_(r.checkout)
+                }));
+                // объединяем без дублей
+                sheetRanges.forEach(sr => {
+                    if (!ranges.some(r => r.checkin === sr.checkin && r.checkout === sr.checkout)) {
+                        ranges.push(sr);
+                    }
+                });
+            } catch (e) { /* без бэкенда просто не показываем занятые даты */ }
+        }
+
+        roomBookedRanges[roomId] = ranges;
+        renderAvailabilityNote(roomId);
+        calculatePrice(roomId, ROOM_PRICES[roomId]);
     }
 
     function rangesOverlap_(inStr, outStr, ranges) {
@@ -1742,15 +1803,77 @@
         try {
             const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
             const urls = await res.json();
-            if (!urls.length) { grid.innerHTML = '<span class="comments-empty">Пока нет загруженных фото — показываются стандартные.</span>'; return; }
-            grid.innerHTML = urls.map(url => `
-                <div class="admin-photo-thumb">
-                    <img src="${escapeHtml(url)}" alt="">
-                    <button class="admin-photo-delete" onclick="deletePhotoAdmin('${roomId}', '${encodeURIComponent(url)}')">&times;</button>
-                </div>
-            `).join('');
+            const realUrls = urls.filter(u => u !== '__HIDDEN__');
+            const isHidden = urls.includes('__HIDDEN__');
+
+            let html = '';
+            if (realUrls.length) {
+                html += realUrls.map(url => `
+                    <div class="admin-photo-thumb">
+                        <img src="${escapeHtml(url)}" alt="">
+                        <button class="admin-photo-delete" onclick="deletePhotoAdmin('${roomId}', '${encodeURIComponent(url)}')">&times;</button>
+                    </div>
+                `).join('');
+                grid.innerHTML = html;
+            } else if (isHidden) {
+                grid.innerHTML = '<span class="comments-empty">Стандартные фото скрыты. Загрузите новые, или верните их обратно.</span>';
+            } else {
+                grid.innerHTML = '<span class="comments-empty">Сейчас показываются стандартные фото сайта (встроенные). Чтобы заменить — просто загрузите новые ниже. Чтобы убрать без замены — нажмите кнопку ниже.</span>';
+            }
+
+            const toggleBtn = document.getElementById('admin-hide-defaults-btn');
+            if (!realUrls.length && isHidden) {
+                toggleBtn.style.display = '';
+                toggleBtn.innerText = 'Вернуть стандартные фото';
+                toggleBtn.onclick = () => unhideDefaultPhotos(roomId);
+            } else if (!realUrls.length) {
+                toggleBtn.style.display = '';
+                toggleBtn.innerText = 'Скрыть стандартные фото (без замены)';
+                toggleBtn.onclick = () => hideDefaultPhotos(roomId);
+            } else {
+                toggleBtn.style.display = 'none';
+            }
         } catch (e) {
             grid.innerHTML = 'Не удалось загрузить фото.';
+        }
+    }
+
+    async function hideDefaultPhotos(roomId) {
+        if (!confirm('Скрыть стандартные фото этого номера? Пока вы не загрузите новые, вместо них будет пусто.')) return;
+        try {
+            const res = await fetch(CONFIG.SHEET_WEBAPP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ type: 'hideDefaults', room: roomId, pass: adminPass })
+            });
+            const data = await res.json();
+            if (data.ok) {
+                loadPhotosForAdmin(roomId);
+                loadRoomPhotos(roomId);
+            } else {
+                alert('Не удалось скрыть фото: ' + (data.error || 'ошибка'));
+            }
+        } catch (e) {
+            alert('Ошибка соединения');
+        }
+    }
+
+    async function unhideDefaultPhotos(roomId) {
+        try {
+            const res = await fetch(CONFIG.SHEET_WEBAPP_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ type: 'deletePhoto', url: '__HIDDEN__', pass: adminPass })
+            });
+            const data = await res.json();
+            if (data.ok) {
+                loadPhotosForAdmin(roomId);
+                loadRoomPhotos(roomId);
+            } else {
+                alert('Не удалось вернуть фото: ' + (data.error || 'ошибка'));
+            }
+        } catch (e) {
+            alert('Ошибка соединения');
         }
     }
 
@@ -1822,19 +1945,33 @@
         }
     }
 
+    const NO_PHOTO_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23E7DCCC"/><text x="200" y="155" font-family="sans-serif" font-size="18" fill="%238a7d70" text-anchor="middle">Фото скоро появится</text></svg>'
+    );
+
     // Публичная загрузка фото номера — подменяет стандартную галерею, если
-    // администратор уже что-то загрузил через админ-панель.
+    // администратор загрузил новые фото, или показывает заглушку, если
+    // администратор скрыл стандартные фото без замены.
     async function loadRoomPhotos(roomId) {
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
         try {
             const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
             const urls = await res.json();
-            if (!urls.length) return;
-            roomGalleries[roomId] = urls;
+            const realUrls = urls.filter(u => u !== '__HIDDEN__');
+            const isHidden = urls.includes('__HIDDEN__');
             const cover = document.getElementById(`cover-img-${roomId}`);
-            if (cover) cover.src = urls[0];
             const hintEl = document.getElementById(`hint${roomId}`);
-            if (hintEl) hintEl.innerText = `${translations[currentLang].hint} (${urls.length})`;
+
+            if (realUrls.length) {
+                roomGalleries[roomId] = realUrls;
+                if (cover) cover.src = realUrls[0];
+                if (hintEl) hintEl.innerText = `${translations[currentLang].hint} (${realUrls.length})`;
+            } else if (isHidden) {
+                roomGalleries[roomId] = [];
+                if (cover) cover.src = NO_PHOTO_PLACEHOLDER;
+                if (hintEl) hintEl.innerText = '';
+            }
+            // если не скрыто и нет загруженных фото — просто оставляем встроенные стандартные
         } catch (e) { /* остаёмся на стандартных фото */ }
     }
 
@@ -2139,6 +2276,7 @@
         };
 
         sendToSheet('booking', booking);
+        sendBookingToBnovo(booking);
         sendTelegramNotification(
             `🏨 Новая бронь — La Torre\nНомер: ${id}\n${booking.checkin} → ${booking.checkout}\nВзрослых: ${booking.adults}, детей: ${booking.kids}, животных: ${booking.pets}\nГость: ${name}, ${phone}\nСумма: ${booking.total}`
         );
@@ -2166,7 +2304,7 @@
     };
     let currentRoom = 1, currentImgIndex = 0;
     function openGallery(roomNum) {
-        if (!roomGalleries[roomNum]) return;
+        if (!roomGalleries[roomNum] || !roomGalleries[roomNum].length) return;
         currentRoom = roomNum; currentImgIndex = 0; updateLightbox();
         document.getElementById('lightbox').classList.add('open');
     }

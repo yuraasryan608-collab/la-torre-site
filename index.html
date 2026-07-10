@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>La Torre Boutique Hotel</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B1816">
@@ -50,6 +50,9 @@
     .card, .booking-panel, .admin-modal-content, .comment-form input, .comment-form textarea,
     .booking-panel input, .booking-panel select { transition: var(--transition-theme); }
     * { box-sizing: border-box; }
+    /* Запрет масштабирования жестами: iOS Safari игнорирует user-scalable=no,
+       поэтому дублируем через touch-action (разрешаем только прокрутку). */
+    html, body { touch-action: pan-x pan-y; }
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
     }
@@ -150,6 +153,15 @@
     }
     .ararat .peak-back { opacity: 0.55; }
     .ararat .peak-main { stroke: var(--gold); }
+    .ararat .hero-tower-light {
+        animation: towerFlicker 3.4s ease-in-out infinite;
+        filter: drop-shadow(0 0 2.5px rgba(169, 137, 83, 0.9));
+    }
+    @keyframes towerFlicker {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.7; }
+        74%      { opacity: 0.92; }
+    }
     .hero h1 {
         position: relative;
         color: var(--cream);
@@ -1050,6 +1062,13 @@
         </g>
         <path class="peak-back" fill="url(#peakFillGrad)" d="M0 96 L52 40 L78 62 L98 34 L138 66 L166 42 L220 96 Z"/>
         <path class="peak-main" d="M10 96 L70 28 L95 52 L125 20 L210 96" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- Башня La Torre на седловине горы -->
+        <g class="hero-tower" transform="translate(85.4 35.2) scale(0.8)">
+            <path d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M6.5 21H17.5" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round"/>
+            <circle class="hero-tower-light" cx="12" cy="9" r="1.3" fill="#A98953"/>
+        </g>
     </svg>
     <h1 id="h-title">Բարի գալուստ La Torre</h1>
     <p id="h-sub">Էքսկլյուզիվ հյուրանոց Երևանի կենտրոնում</p>
@@ -1473,6 +1492,14 @@
 </div>
 
 <script>
+    // ===== Запрет масштабирования на iOS =====
+    // Safari на iPhone игнорирует user-scalable=no. Пинч-зум и зум двойным
+    // тапом блокирует CSS touch-action: pan-x pan-y (см. стили), а это —
+    // страховка для старых версий iOS с жестовыми событиями.
+    (function () {
+        document.addEventListener('gesturestart', e => e.preventDefault());
+    })();
+
     // ===== Интро-заставка =====
     (function () {
         const overlay = document.getElementById('intro-overlay');
@@ -1521,7 +1548,7 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbwimsCLnWj-guDw9OtBObq616RNJcautyiywisModH6Z8YdQ8ztkNFOzld-nfsaujY/exec', // /exec ссылка после деплоя Apps Script
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).

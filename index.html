@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>La Torre Boutique Hotel</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1B1816">
+<meta name="theme-color" content="#17332A">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
@@ -17,34 +17,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        --basalt: #1B1816;
-        --basalt-soft: #2A2420;
-        --tuff: #A8583F;
-        --tuff-light: #C97F5D;
-        --cream: #F2EAE0;
-        --cream-deep: #E7DCCC;
-        --ink: #2B2521;
-        --gold: #A98953;
-        --forest: #3F5A4D;
-        --forest-light: #567567;
-        --line: rgba(43,37,33,0.14);
+        /* Палитра "Ботанический отель": глубокая сосновая зелень,
+           белый воздух и светлый открытый беж с золотым акцентом */
+        --basalt: #17332A;        /* тёмные поверхности: шапка, футер */
+        --basalt-soft: #21453A;
+        --tuff: #35745A;          /* главный акцент: кнопки, активные элементы */
+        --tuff-light: #5B9678;
+        --cream: #F9F6EF;         /* фон страницы: светлый открытый беж */
+        --cream-deep: #EFE9DB;
+        --ink: #23302A;
+        --gold: #AE9159;
+        --forest: #2F5847;
+        --forest-light: #4E7A64;
+        --line: rgba(35,48,42,0.14);
         --card-bg: #ffffff;
         --input-bg: #ffffff;
-        --heading: #1B1816;
-        --text-secondary: #5c5148;
-        --text-muted: #8a7d70;
+        --heading: #17332A;
+        --text-secondary: #4E5C54;
+        --text-muted: #7E8B82;
         --transition-theme: background 0.35s ease, color 0.35s ease, border-color 0.35s ease;
     }
     body.theme-dark {
-        --cream: #16120F;
-        --cream-deep: #211A15;
-        --ink: #EDE6DC;
-        --card-bg: #241E19;
-        --input-bg: #2A231D;
-        --line: rgba(237,230,220,0.14);
-        --heading: #F2EAE0;
-        --text-secondary: #C9BEB2;
-        --text-muted: #9C9086;
+        --cream: #0F1D17;
+        --cream-deep: #16281F;
+        --ink: #E9EFE9;
+        --card-bg: #182B22;
+        --input-bg: #1E332A;
+        --line: rgba(233,239,233,0.14);
+        --heading: #F2F6F0;
+        --text-secondary: #C2CFC5;
+        --text-muted: #93A399;
     }
     body { transition: var(--transition-theme); }
     .card, .booking-panel, .admin-modal-content, .comment-form input, .comment-form textarea,
@@ -125,7 +127,7 @@
     .hero-sky {
         position: absolute;
         inset: 0;
-        background: radial-gradient(ellipse at 50% 30%, rgba(169,88,63,0.35), transparent 60%);
+        background: radial-gradient(ellipse at 50% 30%, rgba(174,145,89,0.30), transparent 60%);
         animation: glow 8s ease-in-out infinite;
     }
     @keyframes glow {
@@ -155,7 +157,7 @@
     .ararat .peak-main { stroke: var(--gold); }
     .ararat .hero-tower-light {
         animation: towerFlicker 3.4s ease-in-out infinite;
-        filter: drop-shadow(0 0 2.5px rgba(169, 137, 83, 0.9));
+        filter: drop-shadow(0 0 2.5px rgba(174, 145, 89, 0.9));
     }
     @keyframes towerFlicker {
         0%, 100% { opacity: 1; }
@@ -235,7 +237,7 @@
     .price-tag { color: var(--forest); font-weight: 600; font-size: 15px; margin-bottom: 10px; font-family: 'Work Sans', sans-serif; }
     .tag {
         display: inline-block;
-        background: rgba(169,88,63,0.12);
+        background: rgba(53,116,90,0.12);
         color: var(--tuff);
         padding: 4px 11px;
         border-radius: 999px;
@@ -344,7 +346,7 @@
     .calendar-modal {
         display: none;
         position: fixed; inset: 0; z-index: 9997;
-        background: rgba(20,17,15,0.85);
+        background: rgba(13,26,21,0.85);
         justify-content: center; align-items: center;
         padding: 16px;
     }
@@ -383,8 +385,8 @@
         color: var(--text-muted); opacity: 0.4; cursor: not-allowed; text-decoration: line-through;
     }
     .calendar-day.today { font-weight: 700; box-shadow: inset 0 0 0 1.5px var(--tuff-light); }
-    .calendar-day:not(.empty):not(.past):not(.booked):hover { background: rgba(168,88,63,0.14); }
-    .calendar-day.in-range { background: rgba(168,88,63,0.16); border-radius: 0; }
+    .calendar-day:not(.empty):not(.past):not(.booked):hover { background: rgba(53,116,90,0.14); }
+    .calendar-day.in-range { background: rgba(53,116,90,0.16); border-radius: 0; }
     .calendar-day.range-start { background: var(--tuff); color: #fff; border-radius: 8px 0 0 8px; }
     .calendar-day.range-end { background: var(--tuff); color: #fff; border-radius: 0 8px 8px 0; }
     .calendar-day.range-single { background: var(--tuff); color: #fff; border-radius: 8px; }
@@ -406,7 +408,7 @@
     .booked-label { margin-right: 4px; }
     .booked-chip {
         display: inline-block;
-        background: rgba(168,88,63,0.14);
+        background: rgba(53,116,90,0.14);
         color: var(--tuff);
         padding: 2px 8px;
         border-radius: 999px;
@@ -452,7 +454,7 @@
         position: fixed;
         z-index: 9999;
         left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(20,17,15,0.96);
+        background-color: rgba(13,26,21,0.96);
         justify-content: center;
         align-items: center;
         touch-action: none;
@@ -505,7 +507,7 @@
     .admin-modal {
         display: none;
         position: fixed; inset: 0; z-index: 9998;
-        background: rgba(20,17,15,0.85);
+        background: rgba(13,26,21,0.85);
         justify-content: center; align-items: center;
         padding: 20px;
     }
@@ -562,7 +564,7 @@
     .admin-booking-row.cancelled { opacity: 0.5; }
     .status-tag {
         display: inline-block;
-        background: rgba(168,88,63,0.15);
+        background: rgba(53,116,90,0.15);
         color: var(--tuff);
         font-size: 10.5px;
         font-weight: 700;
@@ -584,7 +586,7 @@
         border-radius: 999px;
         cursor: pointer;
     }
-    .cancel-booking-btn:hover { background: rgba(168,88,63,0.1); }
+    .cancel-booking-btn:hover { background: rgba(53,116,90,0.1); }
     .admin-refresh {
         background: none;
         border: 1px solid var(--line);
@@ -630,7 +632,7 @@
     .admin-photo-delete {
         position: absolute; top: 3px; right: 3px;
         width: 20px; height: 20px; border-radius: 50%;
-        background: rgba(20,17,15,0.75); color: #fff; border: none;
+        background: rgba(13,26,21,0.75); color: #fff; border: none;
         font-size: 13px; line-height: 1; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
     }
@@ -793,9 +795,9 @@
     .contact-btn.phone .contact-icon { background: var(--tuff); }
     .contact-btn.phone .contact-icon { animation: ringPulse 3.5s ease-in-out infinite; }
     @keyframes ringPulse {
-        0%, 80%, 100% { box-shadow: 0 0 0 0 rgba(168,88,63,0); }
-        85% { box-shadow: 0 0 0 8px rgba(168,88,63,0.18); }
-        92% { box-shadow: 0 0 0 0 rgba(168,88,63,0); }
+        0%, 80%, 100% { box-shadow: 0 0 0 0 rgba(53,116,90,0); }
+        85% { box-shadow: 0 0 0 8px rgba(53,116,90,0.18); }
+        92% { box-shadow: 0 0 0 0 rgba(53,116,90,0); }
     }
 
     /* ---------- Установка приложения (PWA) ---------- */
@@ -847,8 +849,8 @@
         inset: 0;
         z-index: 9999;
         background:
-            radial-gradient(ellipse 120% 90% at 50% 110%, rgba(169, 137, 83, 0.10), transparent 55%),
-            #14110F;
+            radial-gradient(ellipse 120% 90% at 50% 110%, rgba(174, 145, 89, 0.10), transparent 55%),
+            #0E1F18;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -898,7 +900,7 @@
         animation:
             introLightOn 0.9s ease-out 1.6s forwards,
             introFlicker 3.2s ease-in-out 2.5s infinite;
-        filter: drop-shadow(0 0 3px rgba(169, 137, 83, 0.9));
+        filter: drop-shadow(0 0 3px rgba(174, 145, 89, 0.9));
     }
     @keyframes introLightOn {
         0%   { opacity: 0; transform: scale(0.4); }
@@ -927,7 +929,7 @@
         font-size: 10.5px;
         letter-spacing: 0.52em;
         text-indent: 0.52em;
-        color: rgba(169, 137, 83, 0.85);
+        color: rgba(174, 145, 89, 0.85);
         opacity: 0;
         animation: introRise 1.0s cubic-bezier(0.22, 1, 0.36, 1) 2.15s forwards;
     }
@@ -1048,8 +1050,8 @@
                 <stop offset="100%" stop-color="#A98953" stop-opacity="0"/>
             </radialGradient>
             <linearGradient id="peakFillGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#C97F5D" stop-opacity="0.35"/>
-                <stop offset="100%" stop-color="#A8583F" stop-opacity="0.03"/>
+                <stop offset="0%" stop-color="#6FA98A" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#35745A" stop-opacity="0.03"/>
             </linearGradient>
         </defs>
         <circle class="sun" cx="112" cy="40" r="32" fill="url(#sunGlow)"/>
@@ -1062,11 +1064,11 @@
         </g>
         <path class="peak-back" fill="url(#peakFillGrad)" d="M0 96 L52 40 L78 62 L98 34 L138 66 L166 42 L220 96 Z"/>
         <path class="peak-main" d="M10 96 L70 28 L95 52 L125 20 L210 96" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-        <!-- Башня La Torre на седловине горы -->
-        <g class="hero-tower" transform="translate(85.4 35.2) scale(0.8)">
-            <path d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M6.5 21H17.5" stroke="#F2EAE0" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- Башня La Torre у подножия горы, по центру -->
+        <g class="hero-tower" transform="translate(93.2 66.6) scale(1.4)">
+            <path d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2EAE0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2EAE0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M6.5 21H17.5" stroke="#F2EAE0" stroke-width="1.3" stroke-linecap="round"/>
             <circle class="hero-tower-light" cx="12" cy="9" r="1.3" fill="#A98953"/>
         </g>
     </svg>
@@ -1548,7 +1550,7 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbwimsCLnWj-guDw9OtBObq616RNJcautyiywisModH6Z8YdQ8ztkNFOzld-nfsaujY/exec', // /exec ссылка после деплоя Apps Script
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
@@ -2128,7 +2130,7 @@
     }
 
     const NO_PHOTO_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23E7DCCC"/><text x="200" y="155" font-family="sans-serif" font-size="18" fill="%238a7d70" text-anchor="middle">Фото скоро появится</text></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23EFE9DB"/><text x="200" y="155" font-family="sans-serif" font-size="18" fill="%237E8B82" text-anchor="middle">Фото скоро появится</text></svg>'
     );
 
     // Публичная загрузка фото номера — подменяет стандартную галерею, если

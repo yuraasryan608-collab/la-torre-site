@@ -22,7 +22,7 @@
         --line: rgba(35,48,42,0.14);
         --card-bg: #ffffff;
         --heading: #17332A;
-        --text-muted: #7E8B82;
+        --mut: #7E8B82;
         --danger: #A8453A;
     }
     * { box-sizing: border-box; }
@@ -35,76 +35,103 @@
         -webkit-font-smoothing: antialiased;
         min-height: 100vh;
     }
-    header {
-        background: var(--basalt);
-        color: #F2F6F0;
-        padding: 14px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+
+    /* ---- Шапка ---- */
+    .topbar {
+        background: var(--basalt); color: #F2F6F0;
+        padding: 14px 18px;
+        display: flex; align-items: center; justify-content: space-between;
+        position: sticky; top: 0; z-index: 20;
     }
     .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-    .brand svg { width: 22px; height: 22px; }
-    .brand-name { font-family: 'Fraunces', serif; font-size: 17px; letter-spacing: 0.2em; }
-    .brand-role { font-size: 10.5px; letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; margin-left: 4px; }
+    .brand-name { font-family: 'Fraunces', serif; font-size: 16px; letter-spacing: 0.18em; }
+    .brand-role { font-size: 10px; letter-spacing: 0.14em; color: var(--gold); text-transform: uppercase; }
     .logout-btn {
         background: none; border: 1px solid rgba(242,246,240,0.35); color: #F2F6F0;
-        font-size: 12px; padding: 6px 14px; border-radius: 999px; cursor: pointer;
-        display: none;
-    }
-    .wrap { max-width: 680px; margin: 0 auto; padding: 24px 16px 60px; }
-
-    /* ---- Вход ---- */
-    .login-card {
-        background: var(--card-bg); border: 1px solid var(--line); border-radius: 16px;
-        padding: 28px 24px; max-width: 380px; margin: 8vh auto 0;
-        box-shadow: 0 10px 30px rgba(23,51,42,0.08);
-    }
-    .login-card h1 { font-family: 'Fraunces', serif; font-size: 22px; margin: 0 0 4px; color: var(--heading); }
-    .login-card p { margin: 0 0 18px; font-size: 13px; color: var(--text-muted); }
-    .login-card input {
-        width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
-        font-family: inherit; font-size: 15px; margin-bottom: 12px; background: #fff; color: var(--ink);
-    }
-    .login-card input:focus { outline: none; border-color: var(--tuff-light); }
-    .btn {
-        display: inline-block; width: 100%;
-        background: var(--tuff); color: #fff; border: none; border-radius: 10px;
-        padding: 12px; font-family: inherit; font-size: 14.5px; font-weight: 600;
-        cursor: pointer; transition: background 0.2s ease;
-    }
-    .btn:hover { background: var(--forest); }
-    .btn:disabled { opacity: 0.55; cursor: default; }
-    .login-error { color: var(--danger); font-size: 12.5px; min-height: 16px; margin-top: 10px; }
-    .back-link { display: block; text-align: center; margin-top: 16px; font-size: 12.5px; color: var(--text-muted); text-decoration: none; }
-    .back-link:hover { color: var(--tuff); }
-
-    /* ---- Панель ---- */
-    #dashboard { display: none; }
-    .tabs { display: flex; gap: 14px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
-    .tab {
-        background: none; border: none; padding: 10px 2px; font-family: inherit;
-        font-size: 14px; font-weight: 600; color: var(--text-muted); cursor: pointer;
-        border-bottom: 2px solid transparent;
-    }
-    .tab.active { color: var(--tuff); border-bottom-color: var(--tuff); }
-    .panel { display: none; }
-    .panel.active { display: block; }
-
-    .refresh-btn {
-        background: none; border: 1px solid var(--line); color: var(--ink);
-        font-size: 12px; padding: 6px 14px; border-radius: 999px; cursor: pointer; margin-bottom: 14px;
+        font-size: 12px; padding: 6px 14px; border-radius: 999px; cursor: pointer; display: none;
         font-family: inherit;
     }
 
+    .wrap { max-width: 640px; margin: 0 auto; padding: 18px 14px 80px; }
+
+    /* ---- Вход ---- */
+    .login-card {
+        background: var(--card-bg); border: 1px solid var(--line); border-radius: 18px;
+        padding: 28px 24px; max-width: 380px; margin: 9vh auto 0;
+        box-shadow: 0 12px 34px rgba(23,51,42,0.09);
+    }
+    .login-card h1 { font-family: 'Fraunces', serif; font-size: 22px; margin: 0 0 4px; color: var(--heading); }
+    .login-card p { margin: 0 0 18px; font-size: 13px; color: var(--mut); }
+    .inp {
+        width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px;
+        font-family: inherit; font-size: 14.5px; background: #fff; color: var(--ink);
+        margin-bottom: 10px;
+    }
+    .inp:focus { outline: none; border-color: var(--tuff-light); }
+    textarea.inp { resize: none; }
+    .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+        background: var(--tuff); color: #fff; border: none; border-radius: 10px;
+        padding: 12px 16px; font-family: inherit; font-size: 14px; font-weight: 600;
+        cursor: pointer; transition: background 0.2s ease; width: 100%;
+    }
+    .btn:hover { background: var(--forest); }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+    .btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); }
+    .btn.ghost:hover { background: var(--cream-deep); }
+    .btn.sm { width: auto; padding: 8px 14px; font-size: 12.5px; border-radius: 999px; }
+    .login-error { color: var(--danger); font-size: 12.5px; min-height: 16px; margin-top: 8px; }
+    .back-link { display: block; text-align: center; margin-top: 16px; font-size: 12.5px; color: var(--mut); text-decoration: none; }
+
+    /* ---- Панель ---- */
+    #dashboard { display: none; }
+
+    .statG { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .statC {
+        background: var(--card-bg); border: 1px solid var(--line); border-radius: 14px;
+        padding: 12px; font-size: 11.5px; color: var(--mut);
+    }
+    .statC b { display: block; font-size: 20px; color: var(--heading); margin-top: 3px; font-family: 'Fraunces', serif; }
+
+    .h2 {
+        font-family: 'Fraunces', serif; font-size: 17px; color: var(--heading);
+        margin: 0;
+    }
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 12px; }
+
+    /* Дом-строка как в ДомБукинге */
+    .house-row {
+        display: flex; align-items: center; gap: 11px;
+        background: var(--card-bg); border: 1px solid var(--line); border-radius: 14px;
+        padding: 10px 12px; margin-bottom: 9px;
+    }
+    .house-row.is-hidden { opacity: 0.55; }
+    .hr-ph {
+        width: 48px; height: 48px; border-radius: 10px; overflow: hidden;
+        background: var(--cream-deep); flex-shrink: 0;
+    }
+    .hr-ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hr-info { flex: 1; min-width: 0; }
+    .hr-title { font-size: 13.5px; font-weight: 600; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hr-meta { font-size: 12px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .icon-btn {
+        border: 1px solid var(--line); background: none; border-radius: 10px;
+        width: 34px; height: 34px; cursor: pointer; font-size: 14px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; color: var(--ink);
+    }
+    .icon-btn:hover { background: var(--cream-deep); }
+    .icon-btn.danger { color: var(--danger); }
+
     /* Брони */
-    .booking-item { border-bottom: 1px solid var(--line); padding: 13px 0; font-size: 13.5px; }
-    .booking-item:last-child { border-bottom: none; }
-    .booking-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .booking-line1 strong { color: var(--heading); }
-    .booking-meta { color: var(--text-muted); font-size: 12.5px; margin-top: 3px; }
+    .bk-card {
+        background: var(--card-bg); border: 1px solid var(--line); border-radius: 14px;
+        padding: 12px 14px; margin-bottom: 9px; font-size: 13px;
+    }
+    .bk-line1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .bk-line1 strong { color: var(--heading); }
+    .bk-meta { color: var(--mut); font-size: 12px; margin-top: 3px; line-height: 1.5; }
     .status-badge {
-        font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+        font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
         background: rgba(168,69,58,0.12); color: var(--danger);
         padding: 2px 8px; border-radius: 999px;
     }
@@ -113,88 +140,77 @@
         color: var(--tuff); font-size: 12px; padding: 5px 12px; border-radius: 999px;
         cursor: pointer; font-family: inherit;
     }
-    .cancel-btn:hover { background: rgba(53,116,90,0.1); }
+    .refresh-btn {
+        background: none; border: 1px solid var(--line); color: var(--ink);
+        font-size: 12px; padding: 6px 14px; border-radius: 999px; cursor: pointer;
+        font-family: inherit;
+    }
+    .empty { color: var(--mut); font-size: 13px; padding: 14px 2px; }
 
-    /* Дома */
-    .house-row {
-        display: grid; grid-template-columns: 1fr 108px auto; gap: 8px;
-        align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line);
+    /* ---- Шторка редактирования (sheet) ---- */
+    .sheet {
+        position: fixed; inset: 0; z-index: 100;
+        background: rgba(13,26,21,0.45);
+        display: none; align-items: flex-end; justify-content: center;
     }
-    .house-row input {
-        width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
-        font-family: inherit; font-size: 13.5px; background: #fff; color: var(--ink);
+    .sheet.open { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .sheetIn {
+        background: var(--cream); width: 100%; max-width: 560px;
+        border-radius: 20px 20px 0 0;
+        max-height: 92vh; overflow-y: auto;
+        padding: 22px 18px 34px;
+        animation: slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
     }
-    .house-row input:focus { outline: none; border-color: var(--tuff-light); }
-    .house-actions { display: flex; gap: 6px; }
-    .icon-btn {
-        border: 1px solid var(--line); background: none; border-radius: 8px;
-        width: 34px; height: 34px; cursor: pointer; font-size: 14px;
-        display: flex; align-items: center; justify-content: center; color: var(--ink);
-    }
-    .icon-btn.save { color: var(--tuff); border-color: var(--tuff); }
-    .icon-btn.hide { color: var(--danger); }
-    .house-id { font-size: 11px; color: var(--text-muted); }
-    .add-house {
-        margin-top: 18px; padding: 16px; border: 1px dashed var(--line); border-radius: 12px;
-    }
-    .add-house h3 { margin: 0 0 10px; font-size: 14px; color: var(--heading); }
-    .add-house .row { display: grid; grid-template-columns: 1fr 120px; gap: 8px; margin-bottom: 10px; }
-    .add-house input {
-        width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
-        font-family: inherit; font-size: 14px; background: #fff; color: var(--ink);
-    }
-    .hidden-note { font-size: 11.5px; color: var(--text-muted); margin-top: 12px; }
-    .house-row.is-hidden { opacity: 0.55; }
-    .house-row.is-hidden .house-id::after { content: ' · скрыт'; color: var(--danger); }
+    @keyframes slideUp { from { transform: translateY(60px); opacity: 0.5; } to { transform: translateY(0); opacity: 1; } }
+    .sheetIn .h2 { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .lbl { display: block; font-size: 11.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--mut); margin: 12px 0 5px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-    /* Фото */
-    .photo-room-select {
-        width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
-        font-family: inherit; font-size: 14px; background: #fff; color: var(--ink); margin-bottom: 14px;
+    /* Фото-миниатюры в форме */
+    .thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .thumb {
+        position: relative; width: 74px; height: 56px; border-radius: 10px; overflow: hidden;
+        background: var(--cream-deep);
     }
-    .photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-    .photos-grid .empty-msg { grid-column: 1 / -1; font-size: 12.5px; color: var(--text-muted); }
-    .photo-thumb { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 1; background: var(--cream-deep); }
-    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-del {
-        position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%;
-        background: rgba(13,26,21,0.75); color: #fff; border: none; font-size: 13px;
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumbX {
+        position: absolute; top: 3px; right: 3px; width: 19px; height: 19px; border-radius: 50%;
+        background: rgba(13,26,21,0.75); color: #fff; border: none; font-size: 11px;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
-    .upload-label {
-        display: block; text-align: center; border: 1px dashed var(--line); border-radius: 10px;
-        padding: 12px; font-size: 13.5px; font-weight: 600; color: var(--tuff); cursor: pointer;
+    .upBtn {
+        width: 74px; height: 56px; border: 1.5px dashed var(--line); border-radius: 10px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-size: 11px; color: var(--tuff); cursor: pointer; gap: 2px;
     }
     .status-msg { font-size: 12.5px; color: var(--forest); min-height: 16px; margin-top: 10px; }
-    .toggle-defaults-btn {
-        width: 100%; margin-bottom: 10px; background: none; border: 1px solid var(--line);
-        border-radius: 8px; padding: 9px; font-family: inherit; font-size: 12.5px; cursor: pointer;
-        color: var(--ink); display: none;
-    }
 </style>
 </head>
 <body>
 
-<header>
+<div class="topbar">
     <a class="brand" href="index.html">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2F6F0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2F6F0" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M6.5 21H17.5" stroke="#F2F6F0" stroke-width="1.4" stroke-linecap="round"/>
             <circle cx="12" cy="9" r="1.3" fill="#AE9159"/>
         </svg>
-        <span class="brand-name">LA TORRE</span>
-        <span class="brand-role">Admin</span>
+        <div>
+            <div class="brand-name">LA TORRE</div>
+            <div class="brand-role">Панель администратора</div>
+        </div>
     </a>
     <button class="logout-btn" id="logout-btn" onclick="logout()">Выйти</button>
-</header>
+</div>
 
 <!-- ===== Вход ===== -->
 <div id="login-screen">
     <div class="login-card">
         <h1>Вход администратора</h1>
-        <p>Панель управления домами и бронями La Torre</p>
-        <input type="password" id="admin-pass" placeholder="Пароль" onkeydown="if(event.key==='Enter')tryLogin()">
+        <p>Управление домами и бронями La Torre</p>
+        <input type="password" class="inp" id="admin-pass" placeholder="Пароль" onkeydown="if(event.key==='Enter')tryLogin()">
         <button class="btn" id="login-btn" onclick="tryLogin()">Войти</button>
         <div class="login-error" id="login-error"></div>
         <a class="back-link" href="index.html">← Вернуться на сайт</a>
@@ -203,44 +219,60 @@
 
 <!-- ===== Панель ===== -->
 <div class="wrap" id="dashboard">
-    <div class="tabs">
-        <button class="tab active" id="tab-bookings" onclick="switchTab('bookings')">Брони</button>
-        <button class="tab" id="tab-houses" onclick="switchTab('houses')">Дома</button>
-        <button class="tab" id="tab-photos" onclick="switchTab('photos')">Фото</button>
+
+    <div class="statG">
+        <div class="statC">Домов<b id="stat-houses">…</b></div>
+        <div class="statC">Актуальных броней<b id="stat-bookings">…</b></div>
+        <div class="statC">Сумма броней<b id="stat-revenue" style="font-size:14px">…</b></div>
     </div>
 
-    <div class="panel active" id="panel-bookings">
+    <div class="sec-head">
+        <div class="h2">Дома</div>
+        <button class="btn sm" onclick="startEdit(null)">+ Добавить дом</button>
+    </div>
+    <div id="houses-list"><div class="empty">Загрузка...</div></div>
+
+    <div class="sec-head" style="margin-top: 26px;">
+        <div class="h2">Брони</div>
         <button class="refresh-btn" onclick="loadBookings()">Обновить</button>
-        <div id="bookings-list">Загрузка...</div>
     </div>
+    <div id="bookings-list"><div class="empty">Загрузка...</div></div>
+</div>
 
-    <div class="panel" id="panel-houses">
-        <div id="houses-list">Загрузка...</div>
-        <div class="add-house">
-            <h3>Добавить дом</h3>
-            <div class="row">
-                <input type="text" id="new-house-name" placeholder="Название (например: Дом с террасой)">
-                <input type="number" id="new-house-price" placeholder="Цена ֏" min="0" step="1000">
+<!-- ===== Шторка: добавление/редактирование дома ===== -->
+<div class="sheet" id="edit-sheet" onclick="if(event.target===this)closeEdit()">
+    <div class="sheetIn">
+        <div class="h2" id="edit-title">Добавить дом</div>
+
+        <label class="lbl">Название</label>
+        <input type="text" class="inp" id="ef-name" placeholder="Например: Дом с террасой">
+
+        <div class="row2">
+            <div>
+                <label class="lbl">Цена за ночь ֏</label>
+                <input type="number" class="inp" id="ef-price" min="0" step="1000">
             </div>
-            <input type="text" id="new-house-address" placeholder="Адрес (например: ул. Абовяна 12, Ереван)" style="width:100%; margin-bottom:10px;">
-            <button class="btn" onclick="addHouse()">Добавить</button>
-            <div class="status-msg" id="houses-status"></div>
+            <div>
+                <label class="lbl">Адрес</label>
+                <input type="text" class="inp" id="ef-address" placeholder="ул. Абовяна 12">
+            </div>
         </div>
-        <div class="hidden-note">
-            «Скрыть» убирает дом с сайта, но сохраняет его брони и фото в таблице.
-            Скрытый дом можно вернуть кнопкой ↩.
-        </div>
-    </div>
 
-    <div class="panel" id="panel-photos">
-        <select class="photo-room-select" id="photo-room" onchange="loadPhotos()"></select>
-        <div class="photos-grid" id="photos-grid"></div>
-        <button class="toggle-defaults-btn" id="toggle-defaults-btn"></button>
-        <label class="upload-label">
-            + Добавить фото
-            <input type="file" accept="image/*" id="photo-file" style="display:none" onchange="uploadPhoto(event)">
-        </label>
-        <div class="status-msg" id="photos-status"></div>
+        <label class="lbl">Описание</label>
+        <textarea class="inp" id="ef-desc" rows="4" placeholder="Расскажите гостям об этом доме: комнаты, удобства, что рядом..."></textarea>
+
+        <label class="lbl">Фото</label>
+        <div class="thumbs" id="ef-thumbs"></div>
+
+        <div class="status-msg" id="ef-status"></div>
+
+        <div class="row2" style="margin-top: 16px;">
+            <button class="btn ghost" onclick="closeEdit()">Отмена</button>
+            <button class="btn" id="ef-save-btn" onclick="saveHouse()">Сохранить</button>
+        </div>
+        <div id="ef-hide-zone" style="margin-top: 12px; display: none;">
+            <button class="btn ghost" id="ef-hide-btn" style="color: var(--danger); border-color: rgba(168,69,58,0.4);"></button>
+        </div>
     </div>
 </div>
 
@@ -248,31 +280,30 @@
     // ============================================================
     //  НАСТРОЙКА: тот же адрес Apps Script, что и в index.html
     // ============================================================
-    const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxg3Bq2kdmM_Z-zc6MJ2AjAqlVShIYR-ih3OF_ghM5QMS4IgtzM9MZDaVmGWXlagJUb/exec';
+    const SHEET_WEBAPP_URL = 'ВАШ_APPS_SCRIPT_URL';
 
     const isConfigured = (val) => val && !val.startsWith('ВАШ_');
     let pass = null;
+    let housesCache = [];
+    let editingId = null;         // null = новый дом
+    let pendingPhotos = [];       // фото, выбранные до сохранения нового дома (dataURL)
 
     function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
-
     function fixDriveUrl(url) {
         const m = String(url).match(/drive\.google\.com\/uc\?export=view&id=([\w-]+)/);
         return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1600` : url;
     }
-
     function normDate(val) {
         const s = String(val);
         return s.includes('T') ? s.split('T')[0] : s;
     }
-
     async function api(params) {
         const qs = new URLSearchParams({ ...params, pass }).toString();
         const res = await fetch(`${SHEET_WEBAPP_URL}?${qs}`);
         return res.json();
     }
-
     async function post(body) {
         const res = await fetch(SHEET_WEBAPP_URL, {
             method: 'POST',
@@ -300,7 +331,7 @@
             if (Array.isArray(data)) {
                 pass = val;
                 try { sessionStorage.setItem('latorre_admin', val); } catch (e) {}
-                showDashboard();
+                showDashboard(data);
             } else {
                 errEl.innerText = 'Неверный пароль';
             }
@@ -310,12 +341,13 @@
         btn.disabled = false;
     }
 
-    function showDashboard() {
+    function showDashboard(bookingsData) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('logout-btn').style.display = 'inline-block';
-        loadBookings();
         loadHouses();
+        if (bookingsData) renderBookings(bookingsData);
+        else loadBookings();
     }
 
     function logout() {
@@ -324,8 +356,7 @@
         location.reload();
     }
 
-    // Автовход, если пароль сохранён в этой сессии браузера
-    (function () {
+    (function autoLogin() {
         try {
             const saved = sessionStorage.getItem('latorre_admin');
             if (saved) {
@@ -335,53 +366,18 @@
         } catch (e) {}
     })();
 
-    // ---------- Вкладки ----------
-    function switchTab(tab) {
-        ['bookings', 'houses', 'photos'].forEach(t => {
-            document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
-            document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
-        });
-        if (tab === 'houses') loadHouses();
-        if (tab === 'photos') setupPhotoRooms();
-    }
-
-    // ---------- Брони ----------
-    async function loadBookings() {
-        const list = document.getElementById('bookings-list');
-        list.innerHTML = 'Загрузка...';
-        try {
-            const data = await api({ action: 'bookings' });
-            if (!Array.isArray(data)) { list.innerHTML = 'Ошибка загрузки'; return; }
-            if (!data.length) { list.innerHTML = '<div class="booking-meta">Актуальных броней нет</div>'; return; }
-            list.innerHTML = data.map(b => `
-                <div class="booking-item">
-                    <div class="booking-line1">
-                        <strong>${escapeHtml(roomNameById(b.room))}</strong>
-                        — ${escapeHtml(normDate(b.checkin))} → ${escapeHtml(normDate(b.checkout))}
-                        ${b.status === 'Отменена' ? '<span class="status-badge">Отменена</span>' : ''}
-                    </div>
-                    <div class="booking-meta">
-                        ${escapeHtml(b.name)}, ${escapeHtml(b.phone)} · взрослых: ${escapeHtml(b.adults)}, детей: ${escapeHtml(b.kids)}, животных: ${escapeHtml(b.pets)}<br>
-                        Сумма: ${escapeHtml(b.total)}
-                    </div>
-                    ${b.status !== 'Отменена' ? `<button class="cancel-btn" onclick="cancelBooking('${escapeHtml(b.id)}')">Отменить бронь</button>` : ''}
-                </div>
-            `).join('');
-        } catch (e) {
-            list.innerHTML = 'Ошибка соединения';
+    // ---------- Статистика ----------
+    function updateStats(bookings) {
+        document.getElementById('stat-houses').innerText = housesCache.filter(h => h.status !== 'hidden').length;
+        if (bookings) {
+            const active = bookings.filter(b => b.status !== 'Отменена');
+            document.getElementById('stat-bookings').innerText = active.length;
+            const sum = active.reduce((acc, b) => acc + (parseInt(String(b.total).replace(/\D/g, ''), 10) || 0), 0);
+            document.getElementById('stat-revenue').innerText = sum ? sum.toLocaleString() + ' ֏' : '—';
         }
     }
 
-    async function cancelBooking(id) {
-        if (!confirm('Отменить эту бронь? Даты освободятся для новых гостей.')) return;
-        const data = await post({ type: 'cancelBooking', id });
-        if (data.ok) loadBookings();
-        else alert('Не удалось отменить: ' + (data.error || 'ошибка'));
-    }
-
     // ---------- Дома ----------
-    let housesCache = [];
-
     function roomNameById(id) {
         const h = housesCache.find(x => String(x.id) === String(id));
         return h ? h.name : `Номер ${id}`;
@@ -389,175 +385,216 @@
 
     async function loadHouses() {
         const list = document.getElementById('houses-list');
-        list.innerHTML = 'Загрузка...';
         try {
             const data = await api({ action: 'roomsAll' });
-            if (!Array.isArray(data)) { list.innerHTML = 'Ошибка загрузки'; return; }
+            if (!Array.isArray(data)) { list.innerHTML = '<div class="empty">Ошибка загрузки</div>'; return; }
             housesCache = data;
-            if (!data.length) { list.innerHTML = '<div class="booking-meta">Домов пока нет — добавьте первый ниже.</div>'; return; }
+            updateStats();
+            if (!data.length) { list.innerHTML = '<div class="empty">Домов пока нет — добавьте первый.</div>'; return; }
             list.innerHTML = data.map(h => `
                 <div class="house-row ${h.status === 'hidden' ? 'is-hidden' : ''}">
-                    <div>
-                        <input type="text" id="hname-${h.id}" value="${escapeHtml(h.name)}">
-                        <input type="text" id="haddr-${h.id}" value="${escapeHtml(h.address || '')}" placeholder="Адрес" style="margin-top:6px; font-size:12.5px;">
-                        <div class="house-id">ID ${h.id}</div>
+                    <div class="hr-ph"><img id="hphoto-${h.id}" src="" alt="" style="display:none"></div>
+                    <div class="hr-info">
+                        <div class="hr-title">${escapeHtml(h.name)}${h.status === 'hidden' ? ' · скрыт' : ''}</div>
+                        <div class="hr-meta">${h.price.toLocaleString()} ֏ / ночь${h.address ? ' · ' + escapeHtml(h.address) : ''}</div>
                     </div>
-                    <input type="number" id="hprice-${h.id}" value="${h.price}" min="0" step="1000">
-                    <div class="house-actions">
-                        <button class="icon-btn save" title="Сохранить" onclick="saveHouse(${h.id})">✓</button>
-                        ${h.status === 'hidden'
-                            ? `<button class="icon-btn" title="Вернуть на сайт" onclick="setHouseStatus(${h.id}, 'active')">↩</button>`
-                            : `<button class="icon-btn hide" title="Скрыть с сайта" onclick="setHouseStatus(${h.id}, 'hidden')">✕</button>`}
-                    </div>
+                    <button class="icon-btn" title="Изменить" onclick="startEdit(${h.id})">✎</button>
+                    ${h.status === 'hidden'
+                        ? `<button class="icon-btn" title="Вернуть на сайт" onclick="setStatus(${h.id}, 'active')">↩</button>`
+                        : `<button class="icon-btn danger" title="Скрыть с сайта" onclick="setStatus(${h.id}, 'hidden')">✕</button>`}
                 </div>
             `).join('');
+            // Подтягиваем обложки (первое фото каждого дома)
+            data.forEach(async h => {
+                try {
+                    const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${h.id}`);
+                    const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
+                    const img = document.getElementById(`hphoto-${h.id}`);
+                    if (img && urls.length) { img.src = urls[0]; img.style.display = 'block'; }
+                } catch (e) {}
+            });
         } catch (e) {
-            list.innerHTML = 'Ошибка соединения';
+            list.innerHTML = '<div class="empty">Ошибка соединения</div>';
         }
     }
 
-    async function saveHouse(id) {
-        const name = document.getElementById(`hname-${id}`).value.trim();
-        const price = document.getElementById(`hprice-${id}`).value;
-        const address = document.getElementById(`haddr-${id}`).value.trim();
-        const status = document.getElementById('houses-status');
-        const data = await post({ type: 'updateRoom', id, name, price, address });
-        status.innerText = data.ok ? 'Сохранено ✓' : 'Ошибка: ' + (data.error || '');
-        if (data.ok) loadHouses();
-    }
-
-    async function setHouseStatus(id, st) {
+    async function setStatus(id, st) {
         if (st === 'hidden' && !confirm('Скрыть этот дом с сайта? Брони и фото сохранятся.')) return;
         const data = await post({ type: 'updateRoom', id, status: st });
         if (data.ok) loadHouses();
         else alert('Ошибка: ' + (data.error || ''));
     }
 
-    async function addHouse() {
-        const name = document.getElementById('new-house-name').value.trim();
-        const price = document.getElementById('new-house-price').value;
-        const address = document.getElementById('new-house-address').value.trim();
-        const status = document.getElementById('houses-status');
-        if (!name || !price) { status.innerText = 'Укажите название и цену'; return; }
-        status.innerText = 'Добавляю...';
-        const data = await post({ type: 'addRoom', name, price, address });
-        if (data.ok) {
-            status.innerText = `Дом добавлен ✓ (ID ${data.id})`;
-            document.getElementById('new-house-name').value = '';
-            document.getElementById('new-house-price').value = '';
-            document.getElementById('new-house-address').value = '';
-            loadHouses();
-        } else {
-            status.innerText = 'Ошибка: ' + (data.error || '');
-        }
+    // ---------- Шторка добавления/редактирования ----------
+    function startEdit(id) {
+        editingId = id;
+        pendingPhotos = [];
+        const h = id === null ? null : housesCache.find(x => x.id === id);
+        document.getElementById('edit-title').innerText = h ? 'Изменить дом' : 'Добавить дом';
+        document.getElementById('ef-name').value = h ? h.name : '';
+        document.getElementById('ef-price').value = h ? h.price : '';
+        document.getElementById('ef-address').value = h ? (h.address || '') : '';
+        document.getElementById('ef-desc').value = h ? (h.description || '') : '';
+        document.getElementById('ef-status').innerText = '';
+        document.getElementById('ef-hide-zone').style.display = 'none';
+        renderThumbs([]);
+        document.getElementById('edit-sheet').classList.add('open');
+        if (h) loadEditPhotos(id);
     }
 
-    // ---------- Фото ----------
-    async function setupPhotoRooms() {
-        if (!housesCache.length) {
-            const data = await api({ action: 'roomsAll' });
-            if (Array.isArray(data)) housesCache = data;
-        }
-        const sel = document.getElementById('photo-room');
-        sel.innerHTML = housesCache.map(h => `<option value="${h.id}">${escapeHtml(h.name)}${h.status === 'hidden' ? ' (скрыт)' : ''}</option>`).join('');
-        loadPhotos();
+    function closeEdit() {
+        document.getElementById('edit-sheet').classList.remove('open');
+        editingId = null;
+        pendingPhotos = [];
     }
 
-    async function loadPhotos() {
-        const roomId = document.getElementById('photo-room').value;
-        const grid = document.getElementById('photos-grid');
-        const toggleBtn = document.getElementById('toggle-defaults-btn');
-        grid.innerHTML = '<div class="empty-msg">Загрузка...</div>';
+    async function loadEditPhotos(id) {
         try {
-            const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
-            const raw = await res.json();
-            const urls = raw.map(fixDriveUrl);
-            const realUrls = urls.filter(u => u !== '__HIDDEN__');
-            const isHidden = urls.includes('__HIDDEN__');
-
-            if (realUrls.length) {
-                grid.innerHTML = realUrls.map(url => `
-                    <div class="photo-thumb">
-                        <img src="${escapeHtml(url)}" alt="">
-                        <button class="photo-del" onclick="deletePhoto('${encodeURIComponent(url)}')">&times;</button>
-                    </div>
-                `).join('');
-            } else if (isHidden) {
-                grid.innerHTML = '<div class="empty-msg">Стандартные фото скрыты. Загрузите новые или верните их.</div>';
-            } else if (Number(roomId) <= 4) {
-                grid.innerHTML = '<div class="empty-msg">Показываются встроенные стандартные фото сайта. Загрузите новые, чтобы заменить их, или скройте кнопкой ниже.</div>';
-            } else {
-                grid.innerHTML = '<div class="empty-msg">Фото пока нет — на сайте показывается заглушка. Загрузите первое фото ниже.</div>';
-            }
-
-            // Кнопка скрытия/возврата встроенных фото — только для стартовых номеров 1-4
-            if (Number(roomId) <= 4 && !realUrls.length) {
-                toggleBtn.style.display = 'block';
-                if (isHidden) {
-                    toggleBtn.innerText = 'Вернуть стандартные фото';
-                    toggleBtn.onclick = () => unhideDefaults(roomId);
-                } else {
-                    toggleBtn.innerText = 'Скрыть стандартные фото (без замены)';
-                    toggleBtn.onclick = () => hideDefaults(roomId);
-                }
-            } else {
-                toggleBtn.style.display = 'none';
-            }
-        } catch (e) {
-            grid.innerHTML = '<div class="empty-msg">Ошибка загрузки</div>';
-        }
+            const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${id}`);
+            const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
+            renderThumbs(urls);
+        } catch (e) { renderThumbs([]); }
     }
 
-    async function hideDefaults(roomId) {
-        if (!confirm('Скрыть стандартные фото этого номера?')) return;
-        const data = await post({ type: 'hideDefaults', room: roomId });
-        if (data.ok) loadPhotos();
-        else alert('Ошибка: ' + (data.error || ''));
+    function renderThumbs(serverUrls) {
+        const box = document.getElementById('ef-thumbs');
+        let html = '';
+        // Фото, уже загруженные на сервер (для существующего дома)
+        html += serverUrls.map(url => `
+            <span class="thumb"><img src="${escapeHtml(url)}" alt="">
+                <button class="thumbX" onclick="deleteServerPhoto('${encodeURIComponent(url)}')">×</button></span>
+        `).join('');
+        // Фото, выбранные локально и ждущие сохранения
+        html += pendingPhotos.map((p, i) => `
+            <span class="thumb"><img src="${p.dataUrl}" alt="">
+                <button class="thumbX" onclick="removePending(${i})">×</button></span>
+        `).join('');
+        html += `
+            <label class="upBtn">＋<span>фото</span>
+                <input type="file" accept="image/*" multiple style="display:none" onchange="onFiles(event)">
+            </label>`;
+        box.innerHTML = html;
+        box.dataset.serverUrls = JSON.stringify(serverUrls);
     }
 
-    async function unhideDefaults(roomId) {
-        const data = await post({ type: 'deletePhoto', url: '__HIDDEN__' });
-        if (data.ok) loadPhotos();
-        else alert('Ошибка: ' + (data.error || ''));
-    }
-
-    function uploadPhoto(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const status = document.getElementById('photos-status');
+    function onFiles(event) {
+        const files = [...(event.target.files || [])];
+        if (!files.length) return;
+        const status = document.getElementById('ef-status');
         status.innerText = 'Обрабатываю фото...';
-
-        const img = new Image();
-        const reader = new FileReader();
-        reader.onload = (e) => { img.src = e.target.result; };
-        img.onload = async () => {
-            const maxW = 1280;
-            const scale = Math.min(1, maxW / img.width);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-            const roomId = document.getElementById('photo-room').value;
-
-            status.innerText = 'Загружаю...';
-            const data = await post({ type: 'uploadPhoto', room: roomId, imageBase64: base64, mimeType: 'image/jpeg' });
-            if (data.ok) {
-                status.innerText = 'Фото добавлено ✓';
-                loadPhotos();
-            } else {
-                status.innerText = 'Ошибка: ' + (data.error || '');
-            }
-        };
-        reader.readAsDataURL(file);
+        let done = 0;
+        files.forEach(file => {
+            const img = new Image();
+            const reader = new FileReader();
+            reader.onload = (e) => { img.src = e.target.result; };
+            img.onload = () => {
+                const maxW = 1280;
+                const scale = Math.min(1, maxW / img.width);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                pendingPhotos.push({ dataUrl, base64: dataUrl.split(',')[1] });
+                done++;
+                if (done === files.length) {
+                    status.innerText = '';
+                    renderThumbs(JSON.parse(document.getElementById('ef-thumbs').dataset.serverUrls || '[]'));
+                }
+            };
+            reader.readAsDataURL(file);
+        });
         event.target.value = '';
     }
 
-    async function deletePhoto(encodedUrl) {
+    function removePending(i) {
+        pendingPhotos.splice(i, 1);
+        renderThumbs(JSON.parse(document.getElementById('ef-thumbs').dataset.serverUrls || '[]'));
+    }
+
+    async function deleteServerPhoto(encodedUrl) {
         if (!confirm('Удалить это фото?')) return;
         const data = await post({ type: 'deletePhoto', url: decodeURIComponent(encodedUrl) });
-        if (data.ok) loadPhotos();
-        else alert('Ошибка: ' + (data.error || ''));
+        if (data.ok && editingId !== null) loadEditPhotos(editingId);
+        else if (!data.ok) alert('Ошибка: ' + (data.error || ''));
+    }
+
+    async function saveHouse() {
+        const name = document.getElementById('ef-name').value.trim();
+        const price = document.getElementById('ef-price').value;
+        const address = document.getElementById('ef-address').value.trim();
+        const description = document.getElementById('ef-desc').value.trim();
+        const status = document.getElementById('ef-status');
+        const saveBtn = document.getElementById('ef-save-btn');
+
+        if (!name || !price) { status.innerText = 'Укажите название и цену'; return; }
+        saveBtn.disabled = true;
+
+        try {
+            let id = editingId;
+            if (id === null) {
+                status.innerText = 'Создаю дом...';
+                const data = await post({ type: 'addRoom', name, price, address, description });
+                if (!data.ok) { status.innerText = 'Ошибка: ' + (data.error || ''); saveBtn.disabled = false; return; }
+                id = data.id;
+            } else {
+                status.innerText = 'Сохраняю...';
+                const data = await post({ type: 'updateRoom', id, name, price, address, description });
+                if (!data.ok) { status.innerText = 'Ошибка: ' + (data.error || ''); saveBtn.disabled = false; return; }
+            }
+
+            // Загружаем отложенные фото по очереди
+            for (let i = 0; i < pendingPhotos.length; i++) {
+                status.innerText = `Загружаю фото ${i + 1} из ${pendingPhotos.length}...`;
+                await post({ type: 'uploadPhoto', room: id, imageBase64: pendingPhotos[i].base64, mimeType: 'image/jpeg' });
+            }
+
+            status.innerText = 'Готово ✓';
+            setTimeout(() => { closeEdit(); loadHouses(); }, 500);
+        } catch (e) {
+            status.innerText = 'Ошибка соединения';
+        }
+        saveBtn.disabled = false;
+    }
+
+    // ---------- Брони ----------
+    async function loadBookings() {
+        const list = document.getElementById('bookings-list');
+        list.innerHTML = '<div class="empty">Загрузка...</div>';
+        try {
+            const data = await api({ action: 'bookings' });
+            if (!Array.isArray(data)) { list.innerHTML = '<div class="empty">Ошибка загрузки</div>'; return; }
+            renderBookings(data);
+        } catch (e) {
+            list.innerHTML = '<div class="empty">Ошибка соединения</div>';
+        }
+    }
+
+    function renderBookings(data) {
+        const list = document.getElementById('bookings-list');
+        updateStats(data);
+        if (!data.length) { list.innerHTML = '<div class="empty">Актуальных броней нет</div>'; return; }
+        list.innerHTML = data.map(b => `
+            <div class="bk-card">
+                <div class="bk-line1">
+                    <strong>${escapeHtml(roomNameById(b.room))}</strong>
+                    — ${escapeHtml(normDate(b.checkin))} → ${escapeHtml(normDate(b.checkout))}
+                    ${b.status === 'Отменена' ? '<span class="status-badge">Отменена</span>' : ''}
+                </div>
+                <div class="bk-meta">
+                    ${escapeHtml(b.name)}, ${escapeHtml(b.phone)} · взрослых: ${escapeHtml(b.adults)}, детей: ${escapeHtml(b.kids)}, животных: ${escapeHtml(b.pets)}<br>
+                    Сумма: ${escapeHtml(b.total)}
+                </div>
+                ${b.status !== 'Отменена' ? `<button class="cancel-btn" onclick="cancelBooking('${escapeHtml(b.id)}')">Отменить бронь</button>` : ''}
+            </div>
+        `).join('');
+    }
+
+    async function cancelBooking(id) {
+        if (!confirm('Отменить эту бронь? Даты освободятся для новых гостей.')) return;
+        const data = await post({ type: 'cancelBooking', id });
+        if (data.ok) loadBookings();
+        else alert('Не удалось отменить: ' + (data.error || 'ошибка'));
     }
 </script>
 </body>

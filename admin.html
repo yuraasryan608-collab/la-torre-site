@@ -105,7 +105,6 @@
         background: var(--card-bg); border: 1px solid var(--line); border-radius: 14px;
         padding: 10px 12px; margin-bottom: 9px;
     }
-    .house-row.is-hidden { opacity: 0.55; }
     .hr-ph {
         width: 48px; height: 48px; border-radius: 10px; overflow: hidden;
         background: var(--cream-deep); flex-shrink: 0;
@@ -280,7 +279,7 @@
     // ============================================================
     //  НАСТРОЙКА: тот же адрес Apps Script, что и в index.html
     // ============================================================
-    const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwPh0ikdjoPoxU8Hx460cE-WP1A_bmczTmZ91Prkv75ue_oJRhhEjzodhFGTyDcdohN/exec';
+    const SHEET_WEBAPP_URL = 'ВАШ_APPS_SCRIPT_URL';
 
     const isConfigured = (val) => val && !val.startsWith('ВАШ_');
     let pass = null;
@@ -300,8 +299,10 @@
         return s.includes('T') ? s.split('T')[0] : s;
     }
     async function api(params) {
-        const qs = new URLSearchParams({ ...params, pass }).toString();
-        const res = await fetch(`${SHEET_WEBAPP_URL}?${qs}`);
+        // t=Date.now() делает каждый запрос уникальным — телефоны (особенно
+        // iPhone) не смогут подсунуть закэшированный старый ответ
+        const qs = new URLSearchParams({ ...params, pass, t: Date.now() }).toString();
+        const res = await fetch(`${SHEET_WEBAPP_URL}?${qs}`, { cache: 'no-store' });
         return res.json();
     }
     async function post(body) {
@@ -326,7 +327,7 @@
         btn.disabled = true;
         errEl.innerText = 'Проверяю...';
         try {
-            const res = await fetch(`${SHEET_WEBAPP_URL}?action=bookings&pass=${encodeURIComponent(val)}`);
+            const res = await fetch(`${SHEET_WEBAPP_URL}?action=bookings&pass=${encodeURIComponent(val)}&t=${Date.now()}`, { cache: 'no-store' });
             const data = await res.json();
             if (Array.isArray(data)) {
                 pass = val;
@@ -341,11 +342,12 @@
         btn.disabled = false;
     }
 
-    function showDashboard(bookingsData) {
+    async function showDashboard(bookingsData) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display = 'block';
         document.getElementById('logout-btn').style.display = 'inline-block';
-        loadHouses();
+        // Сначала дома (чтобы в бронях были их названия), затем брони
+        await loadHouses();
         if (bookingsData) renderBookings(bookingsData);
         else loadBookings();
     }
@@ -368,7 +370,7 @@
 
     // ---------- Статистика ----------
     function updateStats(bookings) {
-        document.getElementById('stat-houses').innerText = housesCache.filter(h => h.status !== 'hidden').length;
+        document.getElementById('stat-houses').innerText = housesCache.length;
         if (bookings) {
             const active = bookings.filter(b => b.status !== 'Отменена');
             document.getElementById('stat-bookings').innerText = active.length;
@@ -392,22 +394,20 @@
             updateStats();
             if (!data.length) { list.innerHTML = '<div class="empty">Домов пока нет — добавьте первый.</div>'; return; }
             list.innerHTML = data.map(h => `
-                <div class="house-row ${h.status === 'hidden' ? 'is-hidden' : ''}">
+                <div class="house-row">
                     <div class="hr-ph"><img id="hphoto-${h.id}" src="" alt="" style="display:none"></div>
                     <div class="hr-info">
-                        <div class="hr-title">${escapeHtml(h.name)}${h.status === 'hidden' ? ' · скрыт' : ''}</div>
+                        <div class="hr-title">${escapeHtml(h.name)}</div>
                         <div class="hr-meta">${h.price.toLocaleString()} ֏ / ночь${h.address ? ' · ' + escapeHtml(h.address) : ''}</div>
                     </div>
                     <button class="icon-btn" title="Изменить" onclick="startEdit(${h.id})">✎</button>
-                    ${h.status === 'hidden'
-                        ? `<button class="icon-btn" title="Вернуть на сайт" onclick="setStatus(${h.id}, 'active')">↩</button>`
-                        : `<button class="icon-btn danger" title="Скрыть с сайта" onclick="setStatus(${h.id}, 'hidden')">✕</button>`}
+                    <button class="icon-btn danger" title="Удалить навсегда" onclick="deleteHouse(${h.id})">✕</button>
                 </div>
             `).join('');
             // Подтягиваем обложки (первое фото каждого дома)
             data.forEach(async h => {
                 try {
-                    const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${h.id}`);
+                    const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${h.id}&t=${Date.now()}`, { cache: 'no-store' });
                     const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
                     const img = document.getElementById(`hphoto-${h.id}`);
                     if (img && urls.length) { img.src = urls[0]; img.style.display = 'block'; }
@@ -418,9 +418,11 @@
         }
     }
 
-    async function setStatus(id, st) {
-        if (st === 'hidden' && !confirm('Скрыть этот дом с сайта? Брони и фото сохранятся.')) return;
-        const data = await post({ type: 'updateRoom', id, status: st });
+    async function deleteHouse(id) {
+        const h = housesCache.find(x => x.id === id);
+        const name = h ? h.name : `дом ${id}`;
+        if (!confirm(`Удалить «${name}» НАВСЕГДА?\n\nДом исчезнет с сайта, все его фото будут удалены. Вернуть будет невозможно.`)) return;
+        const data = await post({ type: 'deleteRoom', id });
         if (data.ok) loadHouses();
         else alert('Ошибка: ' + (data.error || ''));
     }
@@ -450,7 +452,7 @@
 
     async function loadEditPhotos(id) {
         try {
-            const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${id}`);
+            const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${id}&t=${Date.now()}`, { cache: 'no-store' });
             const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
             renderThumbs(urls);
         } catch (e) { renderThumbs([]); }
@@ -592,9 +594,16 @@
 
     async function cancelBooking(id) {
         if (!confirm('Отменить эту бронь? Даты освободятся для новых гостей.')) return;
-        const data = await post({ type: 'cancelBooking', id });
-        if (data.ok) loadBookings();
-        else alert('Не удалось отменить: ' + (data.error || 'ошибка'));
+        try {
+            const data = await post({ type: 'cancelBooking', id });
+            if (data.ok) {
+                loadBookings(); // список придёт уже без этой брони
+            } else {
+                alert('Не удалось отменить: ' + (data.error || 'ошибка'));
+            }
+        } catch (e) {
+            alert('Ошибка соединения — попробуйте ещё раз');
+        }
     }
 </script>
 </body>

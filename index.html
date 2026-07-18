@@ -947,6 +947,16 @@
 
     /* ---------- Контакты ---------- */
     .contact-section { padding: 4px 16px 50px; max-width: 520px; margin: 0 auto; text-align: center; }
+    /* Компактная версия контактов над поиском */
+    .contact-top { padding: 0 0 18px; max-width: none; }
+    .contact-top h2 { display: none; }
+    .contact-top .contact-buttons { gap: 10px; }
+    .contact-top .contact-btn {
+        flex-direction: row; width: auto; gap: 7px;
+        padding: 9px 16px; border-radius: 999px; font-size: 12.5px;
+    }
+    .contact-top .contact-icon { width: auto; height: auto; }
+    .contact-top .contact-icon svg { width: 16px; height: 16px; display: block; }
     .contact-section h2 { font-size: 21px; color: var(--heading); margin: 0 0 18px; font-weight: 600; }
     .contact-buttons { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
     .contact-btn {
@@ -1147,7 +1157,7 @@
 </div>
 
 <header>
-    <div class="brand">
+    <div class="brand" onclick="location.href='admin.html'" style="cursor: pointer;" title="Вход для администратора">
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 21V10.5C8 7 9.8 3 12 3C14.2 3 16 7 16 10.5V21" stroke="#F2EAE0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M9.5 21V16.5C9.5 15.1 10.6 14 12 14C13.4 14 14.5 15.1 14.5 16.5V21" stroke="#F2EAE0" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1208,6 +1218,30 @@
 </section>
 
 <div class="rooms">
+    <section class="contact-section contact-top">
+    <h2 id="contact-title">Կապվեք մեզ հետ</h2>
+    <div class="contact-buttons">
+        <a class="contact-btn whatsapp" id="contact-whatsapp" href="#" target="_blank" rel="noopener">
+            <span class="contact-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.36 5.07L2 22l5.11-1.34A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.6 0-3.1-.44-4.39-1.2l-.31-.18-3.03.8.81-2.95-.2-.31A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8zm4.4-5.6c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.44-1.34-1.68-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg>
+            </span>
+            WhatsApp
+        </a>
+        <a class="contact-btn instagram" id="contact-instagram" href="#" target="_blank" rel="noopener">
+            <span class="contact-icon">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>
+            </span>
+            Instagram
+        </a>
+        <a class="contact-btn phone" id="contact-phone" href="#">
+            <span class="contact-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.3 15.9 21.3 16.5V20.3C21.3 20.9 20.9 21.3 20.3 21.3C10.7 21.3 2.7 13.3 2.7 3.7C2.7 3.1 3.1 2.7 3.7 2.7H7.5C8.1 2.7 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            </span>
+            <span id="contact-phone-label">Позвонить</span>
+        </a>
+    </div>
+</section>
+
     <!-- Поиск и фильтры -->
     <div class="catalog-controls">
         <div class="search-row">
@@ -1250,33 +1284,10 @@
 
 
 
-<section class="contact-section reveal">
-    <h2 id="contact-title">Կապվեք մեզ հետ</h2>
-    <div class="contact-buttons">
-        <a class="contact-btn whatsapp" id="contact-whatsapp" href="#" target="_blank" rel="noopener">
-            <span class="contact-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.36 5.07L2 22l5.11-1.34A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.6 0-3.1-.44-4.39-1.2l-.31-.18-3.03.8.81-2.95-.2-.31A7.94 7.94 0 014 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8zm4.4-5.6c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.44-1.34-1.68-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.4-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z"/></svg>
-            </span>
-            WhatsApp
-        </a>
-        <a class="contact-btn instagram" id="contact-instagram" href="#" target="_blank" rel="noopener">
-            <span class="contact-icon">
-                <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>
-            </span>
-            Instagram
-        </a>
-        <a class="contact-btn phone" id="contact-phone" href="#">
-            <span class="contact-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6.6 10.8C8 13.6 10.4 16 13.2 17.4L15.4 15.2C15.7 14.9 16.1 14.8 16.5 14.9C17.7 15.3 19 15.5 20.3 15.5C20.9 15.5 21.3 15.9 21.3 16.5V20.3C21.3 20.9 20.9 21.3 20.3 21.3C10.7 21.3 2.7 13.3 2.7 3.7C2.7 3.1 3.1 2.7 3.7 2.7H7.5C8.1 2.7 8.5 3.1 8.5 3.7C8.5 5 8.7 6.3 9.1 7.5C9.2 7.9 9.1 8.3 8.8 8.6L6.6 10.8Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-            </span>
-            <span id="contact-phone-label">Позвонить</span>
-        </a>
-    </div>
-</section>
+
 
 <footer>
     <div>La Torre — Yerevan, Armenia</div>
-    <a href="admin.html" class="footer-admin-link">Вход для администратора →</a>
 </footer>
 
 
@@ -1373,7 +1384,7 @@
     const CONFIG = {
         TELEGRAM_BOT_TOKEN: 'ВАШ_BOT_TOKEN',      // получить у @BotFather
         TELEGRAM_CHAT_ID:   'ВАШ_CHAT_ID',        // ваш личный chat_id
-        SHEET_WEBAPP_URL:   'https://script.google.com/macros/s/AKfycbwPh0ikdjoPoxU8Hx460cE-WP1A_bmczTmZ91Prkv75ue_oJRhhEjzodhFGTyDcdohN/exec', // /exec ссылка после деплоя Apps Script
+        SHEET_WEBAPP_URL:   'ВАШ_APPS_SCRIPT_URL', // /exec ссылка после деплоя Apps Script
         BNOVO_BACKEND_URL:  'ВАШ_BNOVO_BACKEND_URL', // адрес бэкенда на Render, напр. https://la-torre-bnovo.onrender.com
         // Пароль администратора больше не хранится здесь — он задаётся в самой
         // Google Таблице (Apps Script → Project Settings → Script Properties → ADMIN_PASSWORD).
@@ -1530,7 +1541,7 @@
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
         const container = document.getElementById(`comments-${roomId}`);
         try {
-            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=comments&room=${roomId}`);
+            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=comments&room=${roomId}&t=${Date.now()}`, { cache: 'no-store' });
             const data = await res.json();
             if (!data.length) return;
             container.innerHTML = data.map(c => `<div class="comment-item"><strong>${escapeHtml(c.name)}</strong><p>${escapeHtml(c.text)}</p></div>`).join('');
@@ -1827,7 +1838,7 @@
     async function fetchRooms() {
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
         try {
-            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=rooms`);
+            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=rooms&t=${Date.now()}`, { cache: 'no-store' });
             const data = await res.json();
             if (Array.isArray(data) && data.length) {
                 roomsData = data.map(r => ({ id: Number(r.id), name: String(r.name), price: Number(r.price) || 0, address: String(r.address || ''), description: String(r.description || '') }));
@@ -1883,7 +1894,7 @@
             // в этом случае просто используем данные из Google Sheets.
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), 8000);
-            const res = await fetch(`${CONFIG.BNOVO_BACKEND_URL}/api/availability`, { signal: controller.signal });
+            const res = await fetch(`${CONFIG.BNOVO_BACKEND_URL}/api/availability?t=${Date.now()}`, { signal: controller.signal, cache: 'no-store' });
             clearTimeout(timer);
             const data = await res.json();
             if (data.ok && Array.isArray(data.busy)) {
@@ -1908,7 +1919,7 @@
         // 2) Добавляем брони из Google Sheets (сделанные через сайт)
         if (isConfigured(CONFIG.SHEET_WEBAPP_URL)) {
             try {
-                const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=availability&room=${roomId}`);
+                const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=availability&room=${roomId}&t=${Date.now()}`, { cache: 'no-store' });
                 const data = await res.json();
                 const sheetRanges = data.map(r => ({
                     checkin: normalizeDateStr_(r.checkin),
@@ -1959,7 +1970,7 @@
     async function loadRoomPhotos(roomId) {
         if (!isConfigured(CONFIG.SHEET_WEBAPP_URL)) return;
         try {
-            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}`);
+            const res = await fetch(`${CONFIG.SHEET_WEBAPP_URL}?action=photos&room=${roomId}&t=${Date.now()}`, { cache: 'no-store' });
             const raw = await res.json();
             const urls = raw.map(fixDriveUrl_);
             const realUrls = urls.filter(u => u !== '__HIDDEN__');

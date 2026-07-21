@@ -178,6 +178,8 @@
         background: rgba(13,26,21,0.75); color: #fff; border: none; font-size: 11px;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
+    .thumbStar { position: absolute; top: 2px; left: 2px; background: rgba(0,0,0,.55); color: #ffd479; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; line-height: 1; cursor: pointer; }
+    .thumbMain { position: absolute; bottom: 2px; left: 2px; background: rgba(0,0,0,.6); color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 6px; }
     .upBtn {
         width: 74px; height: 56px; border: 1.5px dashed var(--line); border-radius: 10px;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -280,6 +282,10 @@
     //  НАСТРОЙКА: тот же адрес Apps Script, что и в index.html
     // ============================================================
     const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxB6QHkL-8cdy21ZpwqF3zF37g0nQQKIFPdB3iF2qzDXrnxIv9LHoWFXPQ4HYma8J_U/exec';
+
+    // Адрес прокси на Render — через него админка правит каталог домов
+    // (файл houses.json в репозитории). Токен GitHub хранится на сервере.
+    const PROXY_URL = 'ВАШ_PROXY_URL'; // напр. https://la-torre-bnovo.onrender.com
 
     const isConfigured = (val) => val && !val.startsWith('ВАШ_');
     let pass = null;
@@ -385,44 +391,62 @@
         return h ? h.name : `Номер ${id}`;
     }
 
+    // ---------- Запросы к прокси ----------
+    async function proxy(path, body) {
+        if (!isConfigured(PROXY_URL)) return { ok: false, error: 'Не указан PROXY_URL в admin.html' };
+        try {
+            const res = await fetch(`${PROXY_URL}${path}`, {
+                method: body ? 'POST' : 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                body: body ? JSON.stringify({ ...body, pass }) : undefined
+            });
+            return await res.json();
+        } catch (e) {
+            return { ok: false, error: 'Нет связи с сервером (Render мог заснуть — повторите через минуту)' };
+        }
+    }
+
     async function loadHouses() {
         const list = document.getElementById('houses-list');
         try {
-            const data = await api({ action: 'roomsAll' });
-            if (!Array.isArray(data)) { list.innerHTML = '<div class="empty">Ошибка загрузки</div>'; return; }
-            housesCache = data;
+            const data = await proxy('/api/houses');
+            if (!data.ok) { list.innerHTML = `<div class="empty">${escapeHtml(data.error || 'Ошибка загрузки')}</div>`; return; }
+            housesCache = data.houses || [];
             updateStats();
-            if (!data.length) { list.innerHTML = '<div class="empty">Домов пока нет — добавьте первый.</div>'; return; }
-            list.innerHTML = data.map(h => `
-                <div class="house-row">
-                    <div class="hr-ph"><img id="hphoto-${h.id}" src="" alt="" style="display:none"></div>
+            if (!housesCache.length) { list.innerHTML = '<div class="empty">Домов пока нет — добавьте первый.</div>'; return; }
+            list.innerHTML = housesCache.map(h => {
+                const cover = (h.photos && h.photos.length) ? h.photos[0] : '';
+                const hidden = h.visible === false;
+                return `
+                <div class="house-row" style="${hidden ? 'opacity:.5' : ''}">
+                    <div class="hr-ph">${cover ? `<img src="${escapeHtml(cover)}" alt="">` : ''}</div>
                     <div class="hr-info">
-                        <div class="hr-title">${escapeHtml(h.name)}</div>
-                        <div class="hr-meta">${h.price.toLocaleString()} ֏ / ночь${h.address ? ' · ' + escapeHtml(h.address) : ''}</div>
+                        <div class="hr-title">${escapeHtml(h.name)}${hidden ? ' · скрыт' : ''}</div>
+                        <div class="hr-meta">${Number(h.price).toLocaleString()} ֏ / ночь${h.address ? ' · ' + escapeHtml(h.address) : ''} · ${(h.photos || []).length} фото</div>
                     </div>
+                    <button class="icon-btn" title="${hidden ? 'Показать на сайте' : 'Скрыть с сайта'}" onclick="toggleVisible(${h.id}, ${hidden})">${hidden ? '👁' : '🚫'}</button>
                     <button class="icon-btn" title="Изменить" onclick="startEdit(${h.id})">✎</button>
                     <button class="icon-btn danger" title="Удалить навсегда" onclick="deleteHouse(${h.id})">✕</button>
-                </div>
-            `).join('');
-            // Подтягиваем обложки (первое фото каждого дома)
-            data.forEach(async h => {
-                try {
-                    const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${h.id}&t=${Date.now()}`, { cache: 'no-store' });
-                    const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
-                    const img = document.getElementById(`hphoto-${h.id}`);
-                    if (img && urls.length) { img.src = urls[0]; img.style.display = 'block'; }
-                } catch (e) {}
-            });
+                </div>`;
+            }).join('');
         } catch (e) {
             list.innerHTML = '<div class="empty">Ошибка соединения</div>';
         }
     }
 
+    // Скрыть/показать: дом исчезает с сайта, но данные и фото сохраняются
+    async function toggleVisible(id, makeVisible) {
+        const data = await proxy('/api/houses/visible', { id, visible: makeVisible });
+        if (data.ok) loadHouses();
+        else alert('Ошибка: ' + (data.error || ''));
+    }
+
     async function deleteHouse(id) {
-        const h = housesCache.find(x => x.id === id);
+        const h = housesCache.find(x => Number(x.id) === Number(id));
         const name = h ? h.name : `дом ${id}`;
-        if (!confirm(`Удалить «${name}» НАВСЕГДА?\n\nДом исчезнет с сайта, все его фото будут удалены. Вернуть будет невозможно.`)) return;
-        const data = await post({ type: 'deleteRoom', id });
+        if (!confirm(`Удалить «${name}» НАВСЕГДА?\n\nДом исчезнет с сайта, все его фото будут удалены. Вернуть будет невозможно.\n\nЕсли нужно просто убрать его с сайта на время — используйте кнопку «Скрыть».`)) return;
+        if (!confirm('Точно удалить? Это действие необратимо.')) return;
+        const data = await proxy('/api/houses/delete', { id });
         if (data.ok) loadHouses();
         else alert('Ошибка: ' + (data.error || ''));
     }
@@ -450,21 +474,22 @@
         pendingPhotos = [];
     }
 
-    async function loadEditPhotos(id) {
-        try {
-            const res = await fetch(`${SHEET_WEBAPP_URL}?action=photos&room=${id}&t=${Date.now()}`, { cache: 'no-store' });
-            const urls = (await res.json()).map(fixDriveUrl).filter(u => u !== '__HIDDEN__');
-            renderThumbs(urls);
-        } catch (e) { renderThumbs([]); }
+    function loadEditPhotos(id) {
+        const h = housesCache.find(x => Number(x.id) === Number(id));
+        renderThumbs(h && Array.isArray(h.photos) ? h.photos : []);
     }
 
     function renderThumbs(serverUrls) {
         const box = document.getElementById('ef-thumbs');
         let html = '';
-        // Фото, уже загруженные на сервер (для существующего дома)
-        html += serverUrls.map(url => `
-            <span class="thumb"><img src="${escapeHtml(url)}" alt="">
-                <button class="thumbX" onclick="deleteServerPhoto('${encodeURIComponent(url)}')">×</button></span>
+        // Фото, уже лежащие в репозитории. Первое — главное (обложка карточки).
+        html += serverUrls.map((url, i) => `
+            <span class="thumb">
+                <img src="${escapeHtml(url)}" alt="">
+                ${i === 0 ? '<span class="thumbMain">главное</span>' :
+                  `<button class="thumbStar" title="Сделать главным" onclick="makeCover('${encodeURIComponent(url)}')">★</button>`}
+                <button class="thumbX" onclick="deleteServerPhoto('${encodeURIComponent(url)}')">×</button>
+            </span>
         `).join('');
         // Фото, выбранные локально и ждущие сохранения
         html += pendingPhotos.map((p, i) => `
@@ -490,13 +515,13 @@
             const reader = new FileReader();
             reader.onload = (e) => { img.src = e.target.result; };
             img.onload = () => {
-                const maxW = 1280;
+                const maxW = 1600;
                 const scale = Math.min(1, maxW / img.width);
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
                 canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
                 pendingPhotos.push({ dataUrl, base64: dataUrl.split(',')[1] });
                 done++;
                 if (done === files.length) {
@@ -515,10 +540,23 @@
     }
 
     async function deleteServerPhoto(encodedUrl) {
+        if (editingId === null) return;
         if (!confirm('Удалить это фото?')) return;
-        const data = await post({ type: 'deletePhoto', url: decodeURIComponent(encodedUrl) });
-        if (data.ok && editingId !== null) loadEditPhotos(editingId);
-        else if (!data.ok) alert('Ошибка: ' + (data.error || ''));
+        const status = document.getElementById('ef-status');
+        status.innerText = 'Удаляю фото...';
+        const data = await proxy('/api/houses/photo/delete', { id: editingId, path: decodeURIComponent(encodedUrl) });
+        status.innerText = data.ok ? '' : 'Ошибка: ' + (data.error || '');
+        if (data.ok) { await loadHouses(); loadEditPhotos(editingId); }
+    }
+
+    // Сделать фото главным — оно станет обложкой карточки на сайте
+    async function makeCover(encodedUrl) {
+        if (editingId === null) return;
+        const status = document.getElementById('ef-status');
+        status.innerText = 'Меняю главное фото...';
+        const data = await proxy('/api/houses/photo/cover', { id: editingId, path: decodeURIComponent(encodedUrl) });
+        status.innerText = data.ok ? '' : 'Ошибка: ' + (data.error || '');
+        if (data.ok) { await loadHouses(); loadEditPhotos(editingId); }
     }
 
     async function saveHouse() {
@@ -531,31 +569,18 @@
 
         if (!name || !price) { status.innerText = 'Укажите название и цену'; return; }
         saveBtn.disabled = true;
+        status.innerText = pendingPhotos.length ? `Сохраняю (фото: ${pendingPhotos.length})...` : 'Сохраняю...';
 
-        try {
-            let id = editingId;
-            if (id === null) {
-                status.innerText = 'Создаю дом...';
-                const data = await post({ type: 'addRoom', name, price, address, description });
-                if (!data.ok) { status.innerText = 'Ошибка: ' + (data.error || ''); saveBtn.disabled = false; return; }
-                id = data.id;
-            } else {
-                status.innerText = 'Сохраняю...';
-                const data = await post({ type: 'updateRoom', id, name, price, address, description });
-                if (!data.ok) { status.innerText = 'Ошибка: ' + (data.error || ''); saveBtn.disabled = false; return; }
-            }
+        const data = await proxy('/api/houses/save', {
+            id: editingId,
+            name, price, address, description,
+            photosBase64: pendingPhotos.map(p => p.base64)
+        });
 
-            // Загружаем отложенные фото по очереди
-            for (let i = 0; i < pendingPhotos.length; i++) {
-                status.innerText = `Загружаю фото ${i + 1} из ${pendingPhotos.length}...`;
-                await post({ type: 'uploadPhoto', room: id, imageBase64: pendingPhotos[i].base64, mimeType: 'image/jpeg' });
-            }
+        if (!data.ok) { status.innerText = 'Ошибка: ' + (data.error || ''); saveBtn.disabled = false; return; }
 
-            status.innerText = 'Готово ✓';
-            setTimeout(() => { closeEdit(); loadHouses(); }, 500);
-        } catch (e) {
-            status.innerText = 'Ошибка соединения';
-        }
+        status.innerText = 'Готово ✓ Сайт обновится через 1–2 минуты';
+        setTimeout(() => { closeEdit(); loadHouses(); }, 1200);
         saveBtn.disabled = false;
     }
 

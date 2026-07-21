@@ -1618,7 +1618,7 @@
     function renderRoomsChips() {
         const box = document.getElementById('rooms-chips');
         if (!box) return;
-        const t = TEXTS[currentLang];
+        const t = translations[currentLang];
         const counts = [...new Set(roomsData.map(r => Number(r.bedrooms)).filter(Boolean))].sort((a, b) => a - b);
         if (!counts.length) { box.innerHTML = ''; return; }
         box.innerHTML = `<button class="chip-room ${roomsFilter === null ? 'on' : ''}" onclick="setRoomsFilter(null)">${t.roomsAny}</button>`
@@ -1813,7 +1813,7 @@
         // Инициализация формы внутри страницы
         const sel = document.getElementById(`phone-country-${room.id}`);
         if (sel) {
-            const t = TEXTS[currentLang];
+            const t = translations[currentLang];
             sel.innerHTML = PHONE_COUNTRIES.map(c => `<option value="${c.code}">${c.flag} +${c.code}</option>`).join('')
                           + `<option value="other">🌐 ${t.otherCountry}</option>`;
             onCountryChange(room.id);

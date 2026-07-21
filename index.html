@@ -267,6 +267,13 @@
     }
     .chip.on { background: var(--tuff); border-color: var(--tuff); color: #fff; }
     .filter-price-group { display: inline-flex; align-items: center; gap: 6px; }
+    .filter-rooms-group { display: inline-flex; align-items: center; gap: 6px; }
+    .chip-room {
+        background: var(--card-bg); border: 1px solid var(--line); border-radius: 999px;
+        padding: 6px 11px; font-family: inherit; font-size: 12.5px; font-weight: 600;
+        color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; margin-right: 4px;
+    }
+    .chip-room.on { background: var(--tuff); border-color: var(--tuff); color: #fff; }
     .filter-lbl { font-size: 12px; color: var(--text-muted); }
     .price-inp {
         width: 84px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px;
@@ -492,6 +499,7 @@
 
     .phone-input-row { display: flex; gap: 6px; }
     .phone-country-select { flex: 0 0 100px; padding-left: 6px !important; padding-right: 4px !important; }
+    .phone-custom-code { flex: 0 0 74px; text-align: center; }
     .phone-input-row input { flex: 1; min-width: 0; }
 
     .date-picker-btn {
@@ -1256,6 +1264,10 @@
         <div class="filter-row">
             <button class="chip" id="chip-cheap" onclick="toggleSort('cheap')"></button>
             <button class="chip" id="chip-exp" onclick="toggleSort('exp')"></button>
+            <span class="filter-rooms-group">
+                <span class="filter-lbl" id="f-rooms-lbl"></span>
+                <span id="rooms-chips"></span>
+            </span>
             <span class="filter-price-group">
                 <span class="filter-lbl" id="f-from-lbl"></span>
                 <input type="number" id="price-from" class="price-inp" oninput="applyFilters()" min="0" step="1000">
@@ -1600,6 +1612,24 @@
 
     // ---------- Поиск, фильтры, сортировка ----------
     let sortMode = null; // null | 'cheap' | 'exp'
+    let roomsFilter = null; // null = любое число комнат, иначе число спален
+
+    // Кнопки числа комнат строятся по тому, что реально есть в каталоге
+    function renderRoomsChips() {
+        const box = document.getElementById('rooms-chips');
+        if (!box) return;
+        const t = TEXTS[currentLang];
+        const counts = [...new Set(roomsData.map(r => Number(r.bedrooms)).filter(Boolean))].sort((a, b) => a - b);
+        if (!counts.length) { box.innerHTML = ''; return; }
+        box.innerHTML = `<button class="chip-room ${roomsFilter === null ? 'on' : ''}" onclick="setRoomsFilter(null)">${t.roomsAny}</button>`
+            + counts.map(n => `<button class="chip-room ${roomsFilter === n ? 'on' : ''}" onclick="setRoomsFilter(${n})">${n}</button>`).join('');
+    }
+
+    function setRoomsFilter(n) {
+        roomsFilter = (roomsFilter === n) ? null : n;
+        renderRoomsChips();
+        applyFilters();
+    }
 
     function toggleSort(mode) {
         sortMode = (sortMode === mode) ? null : mode;
@@ -1615,6 +1645,7 @@
         let list = roomsData.filter(r => {
             const price = ROOM_PRICES[r.id] || r.price;
             if (price < pFrom || price > pTo) return false;
+            if (roomsFilter !== null && Number(r.bedrooms) !== roomsFilter) return false;
             if (q && !(`${r.name} ${r.address || ''}`.toLowerCase().includes(q))) return false;
             return true;
         });
@@ -1733,7 +1764,8 @@
                 <div class="form-group">
                     <label id="l-phone-${id}">${t.lphone}</label>
                     <div class="phone-input-row">
-                        <select id="phone-country-${id}" class="phone-country-select"></select>
+                        <select id="phone-country-${id}" class="phone-country-select" onchange="onCountryChange(${id})"></select>
+                        <input type="tel" id="phone-custom-${id}" class="phone-custom-code" placeholder="+___" inputmode="numeric" style="display:none">
                         <input type="tel" id="guest-phone-${id}" placeholder="XX XXX XXX" inputmode="numeric">
                     </div>
                 </div>
@@ -1780,7 +1812,12 @@
 
         // Инициализация формы внутри страницы
         const sel = document.getElementById(`phone-country-${room.id}`);
-        if (sel) sel.innerHTML = PHONE_COUNTRIES.map(c => `<option value="${c.code}">${c.flag} +${c.code}</option>`).join('');
+        if (sel) {
+            const t = TEXTS[currentLang];
+            sel.innerHTML = PHONE_COUNTRIES.map(c => `<option value="${c.code}">${c.flag} +${c.code}</option>`).join('')
+                          + `<option value="other">🌐 ${t.otherCountry}</option>`;
+            onCountryChange(room.id);
+        }
         initRoomDates_(room.id);
         updatePriceDisplay(room.id);
         calculatePrice(room.id, ROOM_PRICES[room.id]);
@@ -1844,13 +1881,15 @@
                 name: String(h.name || ''),
                 price: Number(h.price) || 0,
                 address: String(h.address || ''),
-                description: String(h.description || '')
+                description: String(h.description || ''),
+                bedrooms: Number(h.bedrooms) || 0
             }));
             visible.forEach(h => {
                 ROOM_PRICES[h.id] = Number(h.price) || 0;
                 roomGalleries[h.id] = Array.isArray(h.photos) ? h.photos.slice() : [];
                 if (!roomBookedRanges[h.id]) roomBookedRanges[h.id] = [];
             });
+            renderRoomsChips();
             renderCatalog();
             const m = location.hash.match(/^#h(\d+)$/);
             if (m) openHouse(Number(m[1]));
@@ -2268,10 +2307,28 @@
         }
     }
 
+    // Пункт «Другое» в списке кодов: гость вписывает свой код страны вручную
+    function onCountryChange(id) {
+        const sel = document.getElementById(`phone-country-${id}`);
+        const custom = document.getElementById(`phone-custom-${id}`);
+        if (!sel || !custom) return;
+        const isOther = sel.value === 'other';
+        custom.style.display = isOther ? '' : 'none';
+        if (isOther) custom.focus();
+    }
+
+    // Возвращает код страны: из списка или введённый вручную (только цифры)
+    function getCountryCode_(id) {
+        const sel = document.getElementById(`phone-country-${id}`);
+        if (!sel) return '374';
+        if (sel.value !== 'other') return sel.value;
+        return (document.getElementById(`phone-custom-${id}`)?.value || '').replace(/\D/g, '');
+    }
+
     function confirmBooking(id) {
         const name = document.getElementById(`guest-name-${id}`).value.trim();
         const phoneDigits = document.getElementById(`guest-phone-${id}`).value.replace(/\D/g, '');
-        const countryCode = document.getElementById(`phone-country-${id}`).value;
+        const countryCode = getCountryCode_(id);
 
         if (!name || !phoneDigits) {
             const missingMsg = {
@@ -2280,6 +2337,16 @@
                 am: "Նշեք ձեր անունը և հեռախոսահամարը, որպեսզի կարողանանք հաստատել ամրագրումը"
             };
             alert(missingMsg[currentLang]);
+            return;
+        }
+
+        if (!countryCode) {
+            const noCodeMsg = {
+                ru: "Впишите код страны, например 374",
+                en: "Please enter your country code, e.g. 374",
+                am: "Նշեք ձեր երկրի կոդը, օրինակ՝ 374"
+            };
+            alert(noCodeMsg[currentLang]);
             return;
         }
 
@@ -2373,7 +2440,7 @@
         ru: {
             nightWord: "ночь",
             searchPh: "Поиск по названию или адресу", sortCheap: "Сначала дешевле", sortExp: "Сначала дороже",
-            fFrom: "Цена от", fTo: "до", nothingFound: "Ничего не найдено — измените фильтры", back: "Назад",
+            fFrom: "Цена от", fTo: "до", fRooms: "Комнат", roomsAny: "Любое", otherCountry: "Другое", nothingFound: "Ничего не найдено — измените фильтры", back: "Назад",
             aboutHouse: "Об апартаменте",
             hTitle: "Добро пожаловать в La Torre", hSub: "Эксклюзивный отель в центре Еревана",
             hint: "Посмотреть фото", search: "Забронировать номер", ph: "Параметры бронирования", priceFrom: "от {p} ֏ / ночь",
@@ -2395,7 +2462,7 @@
         en: {
             nightWord: "night",
             searchPh: "Search by name or address", sortCheap: "Cheapest first", sortExp: "Priciest first",
-            fFrom: "Price from", fTo: "to", nothingFound: "Nothing found — try different filters", back: "Back",
+            fFrom: "Price from", fTo: "to", fRooms: "Rooms", roomsAny: "Any", otherCountry: "Other", nothingFound: "Nothing found — try different filters", back: "Back",
             aboutHouse: "About this place",
             hTitle: "Welcome to La Torre", hSub: "Exclusive hotel in the center of Yerevan",
             hint: "View photos", search: "Book Room", ph: "Booking Details", priceFrom: "from {p} ֏ / night",
@@ -2417,7 +2484,7 @@
         am: {
             nightWord: "գիշեր",
             searchPh: "Որոնում ըստ անվան կամ հասցեի", sortCheap: "Սկզբում էժանները", sortExp: "Սկզբում թանկերը",
-            fFrom: "Գինը՝ սկսած", fTo: "մինչև", nothingFound: "Ոչինչ չի գտնվել՝ փոխեք ֆիլտրերը", back: "Հետ",
+            fFrom: "Գինը՝ սկսած", fTo: "մինչև", fRooms: "Սենյակներ", roomsAny: "Ցանկացած", otherCountry: "Այլ", nothingFound: "Ոչինչ չի գտնվել՝ փոխեք ֆիլտրերը", back: "Հետ",
             aboutHouse: "Կացարանի մասին",
             hTitle: "Բարի գալուստ La Torre", hSub: "Էքսկլյուզիվ հյուրանոց Երևանի կենտրոնում",
             hint: "Դիտել նկարները", search: "Ամրագրել սենյակը", ph: "Ամրագրման տվյալներ", priceFrom: "սկսած {p} ֏ / գիշեր",
@@ -2464,6 +2531,9 @@
         if (cc) cc.innerText = t.sortCheap;
         const ce = document.getElementById('chip-exp');
         if (ce) ce.innerText = t.sortExp;
+        const frl = document.getElementById('f-rooms-lbl');
+        if (frl) frl.innerText = t.fRooms;
+        renderRoomsChips();
         const ffl = document.getElementById('f-from-lbl');
         if (ffl) ffl.innerText = t.fFrom;
         const ftl = document.getElementById('f-to-lbl');

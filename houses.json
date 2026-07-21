@@ -24,7 +24,8 @@
         "img/houses/house-01/526126058.jpg",
         "img/houses/house-01/526126064.jpg",
         "img/houses/house-01/526126070.jpg"
-      ]
+      ],
+      "bedrooms": 1
     },
     {
       "id": 2,
@@ -46,7 +47,8 @@
         "img/houses/house-02/10.jpg",
         "img/houses/house-02/11.jpg",
         "img/houses/house-02/12.jpg"
-      ]
+      ],
+      "bedrooms": 2
     },
     {
       "id": 3,
@@ -63,7 +65,8 @@
         "img/houses/house-03/4.jpg",
         "img/houses/house-03/5.jpg",
         "img/houses/house-03/6.jpg"
-      ]
+      ],
+      "bedrooms": 1
     },
     {
       "id": 4,
@@ -87,7 +90,8 @@
         "img/houses/house-04/12.jpg",
         "img/houses/house-04/13.jpg",
         "img/houses/house-04/14.jpg"
-      ]
+      ],
+      "bedrooms": 2
     },
     {
       "id": 5,
@@ -112,7 +116,8 @@
         "img/houses/house-05/13.jpg",
         "img/houses/house-05/14.jpg",
         "img/houses/house-05/15.jpg"
-      ]
+      ],
+      "bedrooms": 2
     },
     {
       "id": 6,
@@ -136,7 +141,8 @@
         "img/houses/house-06/12.jpg",
         "img/houses/house-06/13.jpg",
         "img/houses/house-06/14.jpg"
-      ]
+      ],
+      "bedrooms": 2
     },
     {
       "id": 7,
@@ -160,7 +166,8 @@
         "img/houses/house-07/12.jpg",
         "img/houses/house-07/13.jpg",
         "img/houses/house-07/14.jpg"
-      ]
+      ],
+      "bedrooms": 1
     },
     {
       "id": 8,
@@ -177,7 +184,8 @@
         "img/houses/house-08/5.jpg",
         "img/houses/house-08/6.jpg",
         "img/houses/house-08/7.jpg"
-      ]
+      ],
+      "bedrooms": 1
     },
     {
       "id": 9,
@@ -198,7 +206,8 @@
         "img/houses/house-09/9.jpg",
         "img/houses/house-09/10.jpg",
         "img/houses/house-09/11.jpg"
-      ]
+      ],
+      "bedrooms": 1
     },
     {
       "id": 10,
@@ -230,7 +239,8 @@
         "img/houses/house-10/20.jpg",
         "img/houses/house-10/21.jpg",
         "img/houses/house-10/22.jpg"
-      ]
+      ],
+      "bedrooms": 3
     },
     {
       "id": 11,
@@ -254,7 +264,8 @@
         "img/houses/house-11/12.jpg",
         "img/houses/house-11/13.jpg",
         "img/houses/house-11/14.jpg"
-      ]
+      ],
+      "bedrooms": 1
     }
   ]
 }

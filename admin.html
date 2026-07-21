@@ -259,6 +259,14 @@
             </div>
         </div>
 
+        <div class="row2">
+            <div>
+                <label class="lbl">Комнат (спален)</label>
+                <input type="number" class="inp" id="ef-bedrooms" min="0" max="10" step="1" placeholder="1">
+            </div>
+            <div></div>
+        </div>
+
         <label class="lbl">Описание</label>
         <textarea class="inp" id="ef-desc" rows="4" placeholder="Расскажите гостям об этом доме: комнаты, удобства, что рядом..."></textarea>
 
@@ -422,7 +430,7 @@
                     <div class="hr-ph">${cover ? `<img src="${escapeHtml(cover)}" alt="">` : ''}</div>
                     <div class="hr-info">
                         <div class="hr-title">${escapeHtml(h.name)}${hidden ? ' · скрыт' : ''}</div>
-                        <div class="hr-meta">${Number(h.price).toLocaleString()} ֏ / ночь${h.address ? ' · ' + escapeHtml(h.address) : ''} · ${(h.photos || []).length} фото</div>
+                        <div class="hr-meta">${Number(h.price).toLocaleString()} ֏ / ночь${h.bedrooms ? ' · ' + h.bedrooms + ' комн.' : ''}${h.address ? ' · ' + escapeHtml(h.address) : ''} · ${(h.photos || []).length} фото</div>
                     </div>
                     <button class="icon-btn" title="${hidden ? 'Показать на сайте' : 'Скрыть с сайта'}" onclick="toggleVisible(${h.id}, ${hidden})">${hidden ? '👁' : '🚫'}</button>
                     <button class="icon-btn" title="Изменить" onclick="startEdit(${h.id})">✎</button>
@@ -460,6 +468,7 @@
         document.getElementById('ef-name').value = h ? h.name : '';
         document.getElementById('ef-price').value = h ? h.price : '';
         document.getElementById('ef-address').value = h ? (h.address || '') : '';
+        document.getElementById('ef-bedrooms').value = h ? (h.bedrooms || '') : '';
         document.getElementById('ef-desc').value = h ? (h.description || '') : '';
         document.getElementById('ef-status').innerText = '';
         document.getElementById('ef-hide-zone').style.display = 'none';
@@ -563,6 +572,7 @@
         const name = document.getElementById('ef-name').value.trim();
         const price = document.getElementById('ef-price').value;
         const address = document.getElementById('ef-address').value.trim();
+        const bedrooms = document.getElementById('ef-bedrooms').value;
         const description = document.getElementById('ef-desc').value.trim();
         const status = document.getElementById('ef-status');
         const saveBtn = document.getElementById('ef-save-btn');
@@ -573,7 +583,7 @@
 
         const data = await proxy('/api/houses/save', {
             id: editingId,
-            name, price, address, description,
+            name, price, address, description, bedrooms,
             photosBase64: pendingPhotos.map(p => p.base64)
         });
 

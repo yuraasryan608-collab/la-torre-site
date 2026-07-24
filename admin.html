@@ -400,17 +400,17 @@
     // Всё идёт через тот же Apps Script, что и брони: он хранит GitHub-токен
     // у себя (Script Properties) и коммитит houses.json в репозиторий сайта.
     async function proxy(path, body) {
-        const action = {
-            '/api/houses': 'housesList',
-            '/api/houses/save': 'houseSave',
-            '/api/houses/visible': 'houseVisible',
-            '/api/houses/delete': 'houseDelete',
-            '/api/houses/photo/delete': 'housePhotoDelete',
-            '/api/houses/photo/cover': 'housePhotoCover'
-        }[path];
         try {
-            if (!body) return await api({ action });
-            return await post({ action, ...body });
+            // Список домов — GET (action=housesList), остальное — POST (type=...)
+            if (path === '/api/houses') return await api({ action: 'housesList' });
+            const type = {
+                '/api/houses/save': 'houseSave',
+                '/api/houses/visible': 'houseVisible',
+                '/api/houses/delete': 'houseDelete',
+                '/api/houses/photo/delete': 'housePhotoDelete',
+                '/api/houses/photo/cover': 'housePhotoCover'
+            }[path];
+            return await post({ type, ...body });
         } catch (e) {
             return { ok: false, error: 'Нет связи с сервером' };
         }

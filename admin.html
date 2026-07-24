@@ -291,9 +291,6 @@
     // ============================================================
     const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbytOPRFi8Raq9ddJ3lbguhOi8lA6OCRW_Abe29xwI-Go5z1Zh1Kh4wZKkjilimCaHWV/exec';
 
-    // Адрес прокси на Render — через него админка правит каталог домов
-    // (файл houses.json в репозитории). Токен GitHub хранится на сервере.
-    const PROXY_URL = 'ВАШ_PROXY_URL'; // напр. https://la-torre-bnovo.onrender.com
 
     const isConfigured = (val) => val && !val.startsWith('ВАШ_');
     let pass = null;
@@ -399,18 +396,23 @@
         return h ? h.name : `Номер ${id}`;
     }
 
-    // ---------- Запросы к прокси ----------
+    // ---------- Каталог домов ----------
+    // Всё идёт через тот же Apps Script, что и брони: он хранит GitHub-токен
+    // у себя (Script Properties) и коммитит houses.json в репозиторий сайта.
     async function proxy(path, body) {
-        if (!isConfigured(PROXY_URL)) return { ok: false, error: 'Не указан PROXY_URL в admin.html' };
+        const action = {
+            '/api/houses': 'housesList',
+            '/api/houses/save': 'houseSave',
+            '/api/houses/visible': 'houseVisible',
+            '/api/houses/delete': 'houseDelete',
+            '/api/houses/photo/delete': 'housePhotoDelete',
+            '/api/houses/photo/cover': 'housePhotoCover'
+        }[path];
         try {
-            const res = await fetch(`${PROXY_URL}${path}`, {
-                method: body ? 'POST' : 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                body: body ? JSON.stringify({ ...body, pass }) : undefined
-            });
-            return await res.json();
+            if (!body) return await api({ action });
+            return await post({ action, ...body });
         } catch (e) {
-            return { ok: false, error: 'Нет связи с сервером (Render мог заснуть — повторите через минуту)' };
+            return { ok: false, error: 'Нет связи с сервером' };
         }
     }
 

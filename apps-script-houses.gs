@@ -11,10 +11,13 @@
  *                    на репозиторий la-torre-site
  *     GITHUB_REPO  = yuraasryan608-collab/la-torre-site
  *
- * ПОДКЛЮЧЕНИЕ (по одной строке в твои doGet и doPost — см. ниже отдельно):
- *   в doGet:  добавить ветку   if (action === 'housesList') ...
- *   в doPost: добавить ветку   if (payload.type indexOf 'house') ...
- *   Готовые строки я дам отдельно — их просто вставишь.
+ * ПОДКЛЮЧЕНИЕ. Добавь по одной строке в свои doGet и doPost (в booking.gs):
+ *
+ *   в doGet(e), после строки  const action = e.parameter.action;
+ *       if (action === 'housesList') return housesGet_(e);
+ *
+ *   в doPost(e), после строки  const payload = JSON.parse(e.postData.contents);
+ *       if (payload.type && payload.type.indexOf('house') === 0) return housesPost_(payload);
  */
 
 var GH_BRANCH = 'main';

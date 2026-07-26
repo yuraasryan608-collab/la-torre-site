@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-21",
+  "updated": "2026-07-26",
   "houses": [
     {
       "id": 1,
@@ -266,6 +266,18 @@
         "img/houses/house-11/14.jpg"
       ],
       "bedrooms": 1
+    },
+    {
+      "id": 12,
+      "name": "Home byuzand",
+      "price": 23000,
+      "address": "ул. Бюзанд 7",
+      "description": "dhhsjajaj",
+      "bedrooms": 2,
+      "visible": true,
+      "photos": [
+        "img/houses/house-12/1.jpg"
+      ]
     }
   ]
 }

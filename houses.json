@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-26",
+  "updated": "2026-07-27",
   "houses": [
     {
       "id": 1,
@@ -195,6 +195,7 @@
       "description": "Апартаменты 52 м² с видом на город, 500 м до Площади Республики. Спальня, гостиная с обеденным столом, кухня, ванная с душевой кабиной и стиральной машиной. Парковка, Wi-Fi, трансфер, круглосуточная стойка регистрации.",
       "visible": true,
       "photos": [
+        "img/houses/house-09/11.jpg",
         "img/houses/house-09/1.jpg",
         "img/houses/house-09/2.jpg",
         "img/houses/house-09/3.jpg",
@@ -204,8 +205,7 @@
         "img/houses/house-09/7.jpg",
         "img/houses/house-09/8.jpg",
         "img/houses/house-09/9.jpg",
-        "img/houses/house-09/10.jpg",
-        "img/houses/house-09/11.jpg"
+        "img/houses/house-09/10.jpg"
       ],
       "bedrooms": 1
     },

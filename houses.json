@@ -291,30 +291,6 @@
         "img/houses/house-12/13.jpg",
         "img/houses/house-12/14.jpg"
       ]
-    },
-    {
-      "id": 13,
-      "name": "рыоылылылл",
-      "price": 2627181818,
-      "address": "Нубарашен",
-      "description": "соочоыоылылы",
-      "bedrooms": 4,
-      "visible": true,
-      "photos": [
-        "img/houses/house-13/1.jpg",
-        "img/houses/house-13/2.jpg",
-        "img/houses/house-13/3.jpg",
-        "img/houses/house-13/4.jpg",
-        "img/houses/house-13/5.jpg",
-        "img/houses/house-13/6.jpg",
-        "img/houses/house-13/7.jpg",
-        "img/houses/house-13/8.jpg",
-        "img/houses/house-13/9.jpg",
-        "img/houses/house-13/10.jpg",
-        "img/houses/house-13/11.jpg",
-        "img/houses/house-13/12.jpg",
-        "img/houses/house-13/13.jpg"
-      ]
     }
   ]
 }

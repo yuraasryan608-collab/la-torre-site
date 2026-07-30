@@ -266,31 +266,6 @@
         "img/houses/house-11/14.jpg"
       ],
       "bedrooms": 1
-    },
-    {
-      "id": 12,
-      "name": "good Home",
-      "price": 23000,
-      "address": "Nalbandyan 20/12",
-      "description": "Its verry good Home",
-      "bedrooms": 2,
-      "visible": true,
-      "photos": [
-        "img/houses/house-12/1.jpg",
-        "img/houses/house-12/2.jpg",
-        "img/houses/house-12/3.jpg",
-        "img/houses/house-12/4.jpg",
-        "img/houses/house-12/5.jpg",
-        "img/houses/house-12/6.jpg",
-        "img/houses/house-12/7.jpg",
-        "img/houses/house-12/8.jpg",
-        "img/houses/house-12/9.jpg",
-        "img/houses/house-12/10.jpg",
-        "img/houses/house-12/11.jpg",
-        "img/houses/house-12/12.jpg",
-        "img/houses/house-12/13.jpg",
-        "img/houses/house-12/14.jpg"
-      ]
     }
   ]
 }
